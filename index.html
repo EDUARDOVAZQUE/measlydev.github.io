@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Measly543 - Portafolio</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+</head>
+<body>
+  <!-- Splashscreen mantenido exactamente igual -->
+  <div id="home-screen" class="home-screen">
+    <div id="stars"></div>
+    <div class="home-content">
+      <div class="home-profile-img animated-element"></div>
+      <h1 class="home-username animated-element">Measly543</h1>
+      <nav class="home-nav">
+        <a href="#about" class="home-nav-button interactive-element animated-element">
+          <div class="icon-container"><i class="fa-solid fa-user icon"></i></div>
+          <span>Acerca de mí</span>
+        </a>
+        <a href="#projects" class="home-nav-button interactive-element animated-element">
+          <div class="icon-container"><i class="fa-solid fa-microchip icon" style="color: #ffffff;"></i></div>
+          <span>Proyectos</span>
+        </a>
+        <a href="#experience" class="home-nav-button interactive-element animated-element">
+          <div class="icon-container vex-icon"><span>VEX</span></div>
+          <span>Experiencias</span>
+        </a>
+        <a href="#contact" class="home-nav-button interactive-element animated-element">
+          <div class="icon-container"><i class="fa-solid fa-phone icon"></i></div>
+          <span>Contacto</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Contenedor principal con sidebar -->
+  <div id="main-portfolio">
+    <!-- Botón de menú móvil -->
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Abrir menú">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <!-- Sidebar restaurado como estaba antes -->
+    <aside class="sidebar">
+      <div class="profile">
+        <a href="#home-screen" id="back-to-home" class="home-profile-img" title="Volver al inicio"></a>
+        <h1 class="profile-name">Measly543</h1>
+      </div>
+      <nav class="navigation">
+        <ul>
+          <li><a href="#about" class="nav-link active interactive-element">
+            <i class="fa-solid fa-user icon"></i><span>Acerca de mí</span>
+          </a></li>
+          <li><a href="#projects" class="nav-link interactive-element">
+            <i class="fa-solid fa-microchip icon"></i><span>Proyectos</span>
+          </a></li>
+          <li><a href="#experience" class="nav-link interactive-element">
+            <i class="fa-solid fa-briefcase icon"></i><span>Experiencias</span>
+          </a></li>
+          <li><a href="#contact" class="nav-link interactive-element">
+            <i class="fa-solid fa-phone icon"></i><span>Contacto</span>
+          </a></li>
+          <li id="secret-nav-item" style="display: none;">
+            <a href="#secret-game" class="nav-link interactive-element">
+              <i class="fa-solid fa-gamepad icon"></i><span>Juego</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+      <section id="about" class="content-section centered-content">
+        <h2>Acerca de Mí</h2>
+        <p>
+          ¡Hola! Soy un apasionado desarrollador y entusiasta de la robótica y la electrónica. Me encanta crear soluciones innovadoras que combinan hardware y software. En este espacio, comparto algunos de los proyectos en los que he trabajado y las experiencias que he acumulado.
+        </p>
+      </section>
+
+      <section id="projects" class="content-section">
+        <h2>Proyectos</h2>
+        <div class="filter-container">
+          <label for="category-filter">Filtrar por categoría</label>
+          <select id="category-filter" name="category-filter">
+            <option value="all">Todas</option>
+            <option value="robotica">Robótica</option>
+            <option value="software">Software</option>
+            <option value="iot">IoT</option>
+          </select>
+        </div>
+        <div class="projects-grid">
+          <div class="project-card interactive-element" data-category="robotica">
+            <div class="card-inner">
+              <div class="card-front">
+                <div class="card-image"></div>
+                <p class="card-title">Carro RC</p>
+              </div>
+              <div class="card-back">
+                <h3>Carro RC</h3>
+                <p>Un vehículo a control remoto construido desde cero, utilizando un ESP32 para la comunicación WiFi.</p>
+                <span class="category-tag">Robótica</span>
+                <div class="social-links">
+                  <a href="https://youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
+                  <a href="https://tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
+                  <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="project-card interactive-element" data-category="robotica">
+            <div class="card-inner">
+              <div class="card-front">
+                <div class="card-image"></div>
+                <p class="card-title">Robot Sumo</p>
+              </div>
+              <div class="card-back">
+                <h3>Robot Sumo</h3>
+                <p>Robot autónomo diseñado para competencias de sumo, con sensores infrarrojos para detectar al oponente y el borde del dohyo.</p>
+                <span class="category-tag">Robótica</span>
+              </div>
+            </div>
+          </div>
+          <div class="project-card interactive-element" data-category="robotica">
+            <div class="card-inner">
+              <div class="card-front">
+                <div class="card-image"></div>
+                <p class="card-title">Minimouse</p>
+              </div>
+              <div class="card-back">
+                <h3>Minimouse</h3>
+                <p>Robot micromouse capaz de resolver laberintos de forma autónoma utilizando el algoritmo de Wall Follower.</p>
+                <span class="category-tag">Robótica</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <h3>En progreso...</h3>
+        <div class="projects-grid">
+          <div class="project-card interactive-element" data-category="iot">
+            <div class="card-inner">
+              <div class="card-front">
+                <div class="card-image"></div>
+                <p class="card-title">Juego en ESP32</p>
+              </div>
+              <div class="card-back">
+                <h3>Juego en ESP32</h3>
+                <p>Desarrollo de un juego simple tipo arcade que corre en un microcontrolador ESP32 con una pantalla OLED.</p>
+                <span class="category-tag">IoT</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="experience" class="content-section centered-content">
+        <h2>Experiencias</h2>
+        <p>Aquí puedes listar tus experiencias laborales, competencias o eventos relevantes. Por ejemplo:</p>
+        <ul class="experience-list">
+          <li>
+            <h4>Competencia de Robótica VEX</h4>
+            <span>2023 - Participante y programador principal.</span>
+          </li>
+          <li>
+            <h4>Hackathon Local</h4>
+            <span>2024 - Ganador del premio a la innovación.</span>
+          </li>
+        </ul>
+      </section>
+
+      <section id="contact" class="content-section centered-content">
+        <h2>Contacto</h2>
+        <p>
+          ¿Interesado en colaborar o tienes alguna pregunta? ¡Contáctame!
+        </p>
+        <div class="contact-links">
+          <a href="#" class="interactive-element"><i class="fa-brands fa-github icon"></i> GitHub</a>
+          <a href="#" class="interactive-element"><i class="fa-brands fa-linkedin icon"></i> LinkedIn</a>
+          <a href="#" class="interactive-element"><i class="fa-solid fa-envelope icon"></i> Email</a>
+        </div>
+      </section>
+
+      <!-- Sección del juego secreto -->
+      <section id="secret-game" class="content-section centered-content" style="display: none;">
+        <h2>Juego Secreto</h2>
+        <p>¡Felicidades! Has desbloqueado el juego secreto. Aquí se mostrará contenido especial.</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
