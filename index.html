@@ -31,6 +31,11 @@
           <div class="icon-container"><i class="fa-solid fa-phone icon"></i></div>
           <span>Contacto</span>
         </a>
+        <!-- AGREGADO: Botón del juego secreto -->
+        <a href="#secret-game" id="home-secret-button" class="home-nav-button interactive-element animated-element" style="display: none;">
+          <div class="icon-container"><i class="fa-solid fa-gamepad icon"></i></div>
+          <span>Juego</span>
+        </a>
       </nav>
     </div>
   </div>
@@ -182,10 +187,24 @@
         </div>
       </section>
 
-      <!-- Sección del juego secreto -->
+      <!-- AGREGADO: Sección del juego secreto con iframe -->
       <section id="secret-game" class="content-section centered-content" style="display: none;">
         <h2>Juego Secreto</h2>
-        <p>¡Felicidades! Has desbloqueado el juego secreto. Aquí se mostrará contenido especial.</p>
+        <p>¡Felicidades! Has desbloqueado el juego secreto.</p>
+        
+        <div id="game-container" class="game-container">
+          <div class="game-controls">
+            <button id="fullscreen-game-btn" class="fullscreen-btn">
+              <i class="fa-solid fa-expand"></i> Pantalla Completa
+            </button>
+          </div>
+          <iframe 
+            src="sprite.html"
+            class="game-iframe"
+            title="Juego Secreto"
+            allowfullscreen>
+          </iframe>
+        </div>
       </section>
     </main>
   </div>

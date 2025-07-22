@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego Secreto</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+        
+        #gameCanvas {
+            border: 2px solid #fff;
+            background: #111;
+        }
+        
+        .game-info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-info">
+        <div>Puntuación: <span id="score">0</span></div>
+    </div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreElement = document.getElementById('score');
+        
+        let score = 0;
+        let gameRunning = true;
+        
+        // Jugador
+        const player = {
+            x: canvas.width / 2,
+            y: canvas.height - 50,
+            width: 30,
+            height: 30,
+            speed: 5,
+            color: '#00ff00'
+        };
+        
+        // Enemigos
+        const enemies = [];
+        const enemySpeed = 2;
+        
+        // Crear enemigo
+        function createEnemy() {
+            enemies.push({
+                x: Math.random() * (canvas.width - 30),
+                y: -30,
+                width: 30,
+                height: 30,
+                color: '#ff0000'
+            });
+        }
+        
+        // Controles
+        const keys = {};
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+        
+        document.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+        
+        // Actualizar juego
+        function update() {
+            if (!gameRunning) return;
+            
+            // Mover jugador
+            if (keys['ArrowLeft'] && player.x > 0) {
+                player.x -= player.speed;
+            }
+            if (keys['ArrowRight'] && player.x < canvas.width - player.width) {
+                player.x += player.speed;
+            }
+            if (keys['ArrowUp'] && player.y > 0) {
+                player.y -= player.speed;
+            }
+            if (keys['ArrowDown'] && player.y < canvas.height - player.height) {
+                player.y += player.speed;
+            }
+            
+            // Mover enemigos
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                enemies[i].y += enemySpeed;
+                
+                // Eliminar enemigos que salen de pantalla
+                if (enemies[i].y > canvas.height) {
+                    enemies.splice(i, 1);
+                    score += 10;
+                    scoreElement.textContent = score;
+                }
+                
+                // Detectar colisión
+                else if (enemies[i].x < player.x + player.width &&
+                         enemies[i].x + enemies[i].width > player.x &&
+                         enemies[i].y < player.y + player.height &&
+                         enemies[i].y + enemies[i].height > player.y) {
+                    gameRunning = false;
+                    alert('¡Juego terminado! Puntuación final: ' + score);
+                    location.reload();
+                }
+            }
+        }
+        
+        // Dibujar
+        function draw() {
+            // Limpiar canvas
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Dibujar jugador
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            
+            // Dibujar enemigos
+            ctx.fillStyle = '#ff0000';
+            enemies.forEach(enemy => {
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            });
+        }
+        
+        // Loop principal
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Crear enemigos periódicamente
+        setInterval(createEnemy, 1000);
+        
+        // Iniciar juego
+        gameLoop();
+
+        function spawnFruit() {
+            // Usar las mismas dimensiones que usa el jugador para los límites
+            const spriteWidth = sprite.offsetWidth;
+            const spriteHeight = sprite.offsetHeight;
+            const fruitWidth = fruit.offsetWidth;
+            const fruitHeight = fruit.offsetHeight;
+            
+            // Usar las mismas dimensiones que el gameLoop para consistencia
+            const screenWidth = document.documentElement.clientWidth;
+            const screenHeight = document.documentElement.clientHeight;
+            
+            // Calcular límites seguros para la fruta (donde el jugador puede llegar)
+            const minX = spriteWidth / 2;
+            const maxX = screenWidth - spriteWidth / 2;
+            const minY = spriteHeight / 2;
+            const maxY = screenHeight - spriteHeight / 2;
+            
+            // Considerar también los elementos de UI (casa y controles móviles)
+            const hutRect = hut.getBoundingClientRect();
+            const mobileControls = document.getElementById('mobile-controls');
+            const controlsVisible = mobileControls.style.display !== 'none';
+            
+            let attempts = 0;
+            let validPosition = false;
+            let randomX, randomY;
+            
+            // Intentar encontrar una posición válida
+            while (!validPosition && attempts < 30) {
+                randomX = Math.random() * (maxX - minX) + minX;
+                randomY = Math.random() * (maxY - minY) + minY;
+                
+                // Verificar que no esté muy cerca de la casa (esquina superior derecha)
+                const distanceFromHut = Math.sqrt(
+                    Math.pow(randomX - (hutRect.left + hutRect.width / 2), 2) + 
+                    Math.pow(randomY - (hutRect.top + hutRect.height / 2), 2)
+                );
+                
+                // Verificar que no esté muy cerca de los controles móviles (parte inferior)
+                let distanceFromControls = Infinity;
+                if (controlsVisible) {
+                    const controlsRect = mobileControls.getBoundingClientRect();
+                    distanceFromControls = Math.sqrt(
+                        Math.pow(randomX - (controlsRect.left + controlsRect.width / 2), 2) + 
+                        Math.pow(randomY - (controlsRect.top + controlsRect.height / 2), 2)
+                    );
+                }
+                
+                // La fruta debe estar al menos a 120px de la casa y 150px de los controles
+                if (distanceFromHut > 120 && distanceFromControls > 150) {
+                    validPosition = true;
+                }
+                attempts++;
+            }
+            
+            // Si no se encontró una posición válida, usar el centro de la pantalla
+            if (!validPosition) {
+                randomX = screenWidth / 2;
+                randomY = screenHeight / 2;
+            }
+            
+            fruit.style.left = `${randomX}px`;
+            fruit.style.top = `${randomY}px`;
+            fruit.style.display = 'block';
+        }
+
+        // Loop principal
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+
+            // --- Límites de la Pantalla (CORREGIDO) ---
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+        }
+    </script>
+</body>
+</html>
