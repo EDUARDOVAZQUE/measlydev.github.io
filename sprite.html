@@ -1,231 +1,322 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Juego Secreto</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            font-family: Arial, sans-serif;
-        }
-        
-        #gameCanvas {
-            border: 2px solid #fff;
-            background: #111;
-        }
-        
-        .game-info {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-size: 18px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Junimo Recolector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #111;
+      font-family: 'Silkscreen', cursive; /* Fuente pixelada */
+      box-sizing: border-box;
+    }
+    *, *::before, *::after {
+        box-sizing: inherit;
+    }
+
+    /* --- Elementos del Juego --- */
+    .sprite, #fruit, #junimo-hut {
+      position: absolute;
+      image-rendering: pixelated; /* Mantiene el estilo pixel art al escalar */
+      background-repeat: no-repeat;
+    }
+
+    /* --- Junimo (Personaje) --- */
+    .sprite {
+      top: 50%;
+      left: 50%;
+      width: 64px;   /* Mitad de 128px */
+      height: 64px;  /* Mitad de 128px */
+      background-image: url('img/Junimo.png');
+      background-size: 512px 512px; /* Mitad de 1024px */
+      background-position-y: -64px; /* Fila 2: quieto */
+      filter: hue-rotate(1000deg) saturate(11);
+      animation: idle 1s steps(8) infinite;
+      z-index: 10;
+      transform: translate(-50%, -50%);
+    }
+
+    .walking-down { background-position-y: 0px; }
+    .walking-right { background-position-y: -128px; } /* Mitad de -256px */
+    .walking-up { background-position-y: -256px; }  /* Mitad de -512px */
+
+    @keyframes idle {
+      from { background-position-x: 0px; }
+      to   { background-position-x: -512px; } /* Mitad de -1024px */
+    }
+
+    @keyframes walk {
+      from { background-position-x: 0px; }
+      to   { background-position-x: -512px; } /* Mitad de -1024px */
+    }
+
+    .walking {
+      animation: walk 0.5s steps(8) infinite;
+    }
+
+    /* --- Fruta --- */
+    #fruit {
+      /* Mitad del tamaño anterior */
+      width: 53.2px;
+      height: 55.3px;
+      background-image: url('img/fruta.png');
+      background-size: 320px 440px; /* Mitad del tamaño anterior */
+      /* Fila 2, Columna 3 */
+      background-position: -53.3px -55.3px; 
+      z-index: 5;
+      transform: translate(-50%, -50%);
+    }
+
+    /* --- Casa y Contador --- */
+    #junimo-hut {
+      /* Mitad del tamaño anterior */
+      width: 95.4px;
+      height: 128px;
+      background-image: url('img/casa.png');
+      background-size: 512px 128px; /* Mitad del tamaño anterior */
+      background-position: 0 0;
+      /* Nueva posición: Esquina superior derecha con margen */
+      top: 20px;
+      right: 20px;
+      transform: none; /* Ya no necesita centrarse */
+    }
+
+    #score {
+      position: absolute;
+      /* Posicionado debajo de la casa */
+      top: 100%; 
+      left: 50%;
+      transform: translateX(-50%);
+      margin-top: 5px;
+      color: white;
+      font-size: 2em;
+      text-shadow: 2px 2px #000;
+    }
+    
+    /* --- Controles para Móvil --- */
+    #mobile-controls {
+      display: none; /* Ocultos por defecto */
+      position: fixed;
+      /* Centrados en la parte inferior */
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      opacity: 0.7;
+    }
+    #mobile-controls .d-pad {
+      display: grid;
+      /* Botones más grandes */
+      grid-template-columns: repeat(3, 65px);
+      grid-template-rows: repeat(3, 65px);
+      gap: 10px;
+    }
+    #mobile-controls .d-pad-button {
+      background-color: rgba(255, 255, 255, 0.5);
+      border-radius: 15px;
+      border: 2px solid white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 32px; /* Ícono más grande */
+      color: white;
+      user-select: none;
+    }
+    #up { grid-area: 1 / 2 / 2 / 3; }
+    #left { grid-area: 2 / 1 / 3 / 2; }
+    #right { grid-area: 2 / 3 / 3 / 4; }
+    #down { grid-area: 3 / 2 / 4 / 3; }
+    
+    /* --- Pantalla Final --- */
+    #game-over-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        z-index: 200;
+        /* Padding para centrar mejor el texto */
+        padding: 2rem;
+    }
+    .hidden {
+        display: none !important;
+    }
+  </style>
 </head>
 <body>
-    <div class="game-info">
-        <div>Puntuación: <span id="score">0</span></div>
+
+  <div id="junimo-hut">
+    <div id="score">0</div>
+  </div>
+  
+  <div id="fruit"></div>
+  <div class="sprite" id="sprite"></div>
+
+  <div id="game-over-screen" class="hidden">
+      <h1>¡Este es solo un experimento!</h1>
+      <p>Gracias por recoger las frutas por mí.<br>¡Me sorprende que hayas encontrado la combinación para jugar o que insertes el código Konami en todos lados!</p>
+  </div>
+
+  <div id="mobile-controls">
+    <div class="d-pad">
+        <div class="d-pad-button" id="up">▲</div>
+        <div class="d-pad-button" id="left">◀</div>
+        <div class="d-pad-button" id="right">▶</div>
+        <div class="d-pad-button" id="down">▼</div>
     </div>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
+  </div>
+
+  <script>
+    // --- Elementos del DOM ---
+    const sprite = document.getElementById('sprite');
+    const fruit = document.getElementById('fruit');
+    const hut = document.getElementById('junimo-hut');
+    const scoreDisplay = document.getElementById('score');
+    const gameOverScreen = document.getElementById('game-over-screen');
+
+    // --- Estado del Juego ---
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+    const speed = 5; 
+    let score = 0;
+    let hasFruit = false;
+    let gameOver = false;
     
-    <script>
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const scoreElement = document.getElementById('score');
+    const keysPressed = {};
+    let lastDirection = 'down';
+
+    function spawnFruit() {
+        const margin = 50; // Para que no aparezca en los bordes
+        // Usar clientWidth/clientHeight para mayor compatibilidad móvil
+        const screenWidth = document.documentElement.clientWidth;
+        const screenHeight = document.documentElement.clientHeight;
+
+        const randomX = Math.random() * (screenWidth - margin * 2) + margin;
+        const randomY = Math.random() * (screenHeight - margin * 2) + margin;
+        fruit.style.left = `${randomX}px`;
+        fruit.style.top = `${randomY}px`;
+        fruit.style.display = 'block';
+    }
+
+    function checkCollision(obj1, obj2) {
+      const rect1 = obj1.getBoundingClientRect();
+      const rect2 = obj2.getBoundingClientRect();
+      const dx = (rect1.left + rect1.width / 2) - (rect2.left + rect2.width / 2);
+      const dy = (rect1.top + rect1.height / 2) - (rect2.top + rect2.height / 2);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      return distance < (rect1.width / 2.5 + rect2.width / 2.5);
+    }
+    
+    function gameLoop() {
+        if (gameOver) return;
+
+        let moved = false;
+        // --- Movimiento ---
+        if (keysPressed.w || keysPressed.ArrowUp) { y -= speed; lastDirection = 'up'; moved = true; }
+        if (keysPressed.s || keysPressed.ArrowDown) { y += speed; lastDirection = 'down'; moved = true; }
+        if (keysPressed.a || keysPressed.ArrowLeft) { x -= speed; lastDirection = 'left'; moved = true; }
+        if (keysPressed.d || keysPressed.ArrowRight) { x += speed; lastDirection = 'right'; moved = true; }
+
+        // --- Límites de la Pantalla (CORREGIDO) ---
+        const spriteWidth = sprite.offsetWidth;
+        const spriteHeight = sprite.offsetHeight;
+        const screenWidth = document.documentElement.clientWidth;
+        const screenHeight = document.documentElement.clientHeight;
+
+        if (x < spriteWidth / 2) x = spriteWidth / 2;
+        if (y < spriteHeight / 2) y = spriteHeight / 2;
+        if (x > screenWidth - spriteWidth / 2) x = screenWidth - spriteWidth / 2;
+        if (y > screenHeight - spriteHeight / 2) y = screenHeight - spriteHeight / 2;
+
+
+        // --- Actualizar Posición del Junimo ---
+        sprite.style.left = `${x}px`;
+        sprite.style.top = `${y}px`;
+
+        // --- Actualizar Animación ---
+        if (moved) {
+            sprite.classList.add('walking');
+            sprite.classList.remove('walking-up', 'walking-down', 'walking-right');
+            switch (lastDirection) {
+                case 'up': sprite.classList.add('walking-up'); break;
+                case 'down': sprite.classList.add('walking-down'); break;
+                case 'left':
+                    sprite.classList.add('walking-right');
+                    sprite.style.transform = 'translate(-50%, -50%) scaleX(-1)';
+                    break;
+                case 'right':
+                    sprite.classList.add('walking-right');
+                    sprite.style.transform = 'translate(-50%, -50%) scaleX(1)';
+                    break;
+            }
+        } else {
+            sprite.classList.remove('walking');
+        }
         
-        let score = 0;
-        let gameRunning = true;
-        
-        // Jugador
-        const player = {
-            x: canvas.width / 2,
-            y: canvas.height - 50,
-            width: 30,
-            height: 30,
-            speed: 5,
-            color: '#00ff00'
-        };
-        
-        // Enemigos
-        const enemies = [];
-        const enemySpeed = 2;
-        
-        // Crear enemigo
-        function createEnemy() {
-            enemies.push({
-                x: Math.random() * (canvas.width - 30),
-                y: -30,
-                width: 30,
-                height: 30,
-                color: '#ff0000'
+        // --- Lógica de la Fruta ---
+        if (hasFruit) {
+            fruit.style.left = `${x}px`;
+            fruit.style.top = `${y - spriteHeight / 2}px`;
+            
+            if (checkCollision(sprite, hut)) {
+                hasFruit = false;
+                fruit.style.display = 'none';
+                score++;
+                scoreDisplay.textContent = score;
+
+                if (score >= 10) {
+                    gameOver = true;
+                    gameOverScreen.classList.remove('hidden');
+                } else {
+                    setTimeout(spawnFruit, 500);
+                }
+            }
+        } else {
+            // Evitar recoger fruta si acaba de ser depositada
+            if (fruit.style.display !== 'none' && checkCollision(sprite, fruit)) {
+                hasFruit = true;
+            }
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+    
+    // --- Event Listeners Teclado ---
+    document.addEventListener('keydown', (e) => { keysPressed[e.key] = true; });
+    document.addEventListener('keyup', (e) => { keysPressed[e.key] = false; });
+    
+    // --- Lógica para Controles Móviles ---
+    function setupMobileControls() {
+        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+            document.getElementById('mobile-controls').style.display = 'block';
+            
+            const buttons = document.querySelectorAll('.d-pad-button');
+            const keyMap = { up: 'w', down: 's', left: 'a', right: 'd' };
+
+            buttons.forEach(button => {
+                const key = keyMap[button.id];
+                button.addEventListener('touchstart', (e) => { e.preventDefault(); keysPressed[key] = true; });
+                button.addEventListener('touchend', (e) => { e.preventDefault(); keysPressed[key] = false; });
             });
         }
-        
-        // Controles
-        const keys = {};
-        
-        document.addEventListener('keydown', (e) => {
-            keys[e.key] = true;
-        });
-        
-        document.addEventListener('keyup', (e) => {
-            keys[e.key] = false;
-        });
-        
-        // Actualizar juego
-        function update() {
-            if (!gameRunning) return;
-            
-            // Mover jugador
-            if (keys['ArrowLeft'] && player.x > 0) {
-                player.x -= player.speed;
-            }
-            if (keys['ArrowRight'] && player.x < canvas.width - player.width) {
-                player.x += player.speed;
-            }
-            if (keys['ArrowUp'] && player.y > 0) {
-                player.y -= player.speed;
-            }
-            if (keys['ArrowDown'] && player.y < canvas.height - player.height) {
-                player.y += player.speed;
-            }
-            
-            // Mover enemigos
-            for (let i = enemies.length - 1; i >= 0; i--) {
-                enemies[i].y += enemySpeed;
-                
-                // Eliminar enemigos que salen de pantalla
-                if (enemies[i].y > canvas.height) {
-                    enemies.splice(i, 1);
-                    score += 10;
-                    scoreElement.textContent = score;
-                }
-                
-                // Detectar colisión
-                else if (enemies[i].x < player.x + player.width &&
-                         enemies[i].x + enemies[i].width > player.x &&
-                         enemies[i].y < player.y + player.height &&
-                         enemies[i].y + enemies[i].height > player.y) {
-                    gameRunning = false;
-                    alert('¡Juego terminado! Puntuación final: ' + score);
-                    location.reload();
-                }
-            }
-        }
-        
-        // Dibujar
-        function draw() {
-            // Limpiar canvas
-            ctx.fillStyle = '#111';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Dibujar jugador
-            ctx.fillStyle = player.color;
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-            
-            // Dibujar enemigos
-            ctx.fillStyle = '#ff0000';
-            enemies.forEach(enemy => {
-                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-            });
-        }
-        
-        // Loop principal
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-        
-        // Crear enemigos periódicamente
-        setInterval(createEnemy, 1000);
-        
-        // Iniciar juego
-        gameLoop();
+    }
 
-        function spawnFruit() {
-            // Usar las mismas dimensiones que usa el jugador para los límites
-            const spriteWidth = sprite.offsetWidth;
-            const spriteHeight = sprite.offsetHeight;
-            const fruitWidth = fruit.offsetWidth;
-            const fruitHeight = fruit.offsetHeight;
-            
-            // Usar las mismas dimensiones que el gameLoop para consistencia
-            const screenWidth = document.documentElement.clientWidth;
-            const screenHeight = document.documentElement.clientHeight;
-            
-            // Calcular límites seguros para la fruta (donde el jugador puede llegar)
-            const minX = spriteWidth / 2;
-            const maxX = screenWidth - spriteWidth / 2;
-            const minY = spriteHeight / 2;
-            const maxY = screenHeight - spriteHeight / 2;
-            
-            // Considerar también los elementos de UI (casa y controles móviles)
-            const hutRect = hut.getBoundingClientRect();
-            const mobileControls = document.getElementById('mobile-controls');
-            const controlsVisible = mobileControls.style.display !== 'none';
-            
-            let attempts = 0;
-            let validPosition = false;
-            let randomX, randomY;
-            
-            // Intentar encontrar una posición válida
-            while (!validPosition && attempts < 30) {
-                randomX = Math.random() * (maxX - minX) + minX;
-                randomY = Math.random() * (maxY - minY) + minY;
-                
-                // Verificar que no esté muy cerca de la casa (esquina superior derecha)
-                const distanceFromHut = Math.sqrt(
-                    Math.pow(randomX - (hutRect.left + hutRect.width / 2), 2) + 
-                    Math.pow(randomY - (hutRect.top + hutRect.height / 2), 2)
-                );
-                
-                // Verificar que no esté muy cerca de los controles móviles (parte inferior)
-                let distanceFromControls = Infinity;
-                if (controlsVisible) {
-                    const controlsRect = mobileControls.getBoundingClientRect();
-                    distanceFromControls = Math.sqrt(
-                        Math.pow(randomX - (controlsRect.left + controlsRect.width / 2), 2) + 
-                        Math.pow(randomY - (controlsRect.top + controlsRect.height / 2), 2)
-                    );
-                }
-                
-                // La fruta debe estar al menos a 120px de la casa y 150px de los controles
-                if (distanceFromHut > 120 && distanceFromControls > 150) {
-                    validPosition = true;
-                }
-                attempts++;
-            }
-            
-            // Si no se encontró una posición válida, usar el centro de la pantalla
-            if (!validPosition) {
-                randomX = screenWidth / 2;
-                randomY = screenHeight / 2;
-            }
-            
-            fruit.style.left = `${randomX}px`;
-            fruit.style.top = `${randomY}px`;
-            fruit.style.display = 'block';
-        }
-
-        // Loop principal
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-
-            // --- Límites de la Pantalla (CORREGIDO) ---
-            const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
-        }
-    </script>
+    // --- Iniciar Juego ---
+    spawnFruit();
+    setupMobileControls();
+    gameLoop();
+  </script>
 </body>
 </html>
