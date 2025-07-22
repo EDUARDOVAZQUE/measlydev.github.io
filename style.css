@@ -29,6 +29,136 @@ body {
   overflow-x: hidden;
 }
 
+/* --- JUNIMOS FLOTANTES --- */
+#junimos-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.floating-junimo {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  background-image: url("/placeholder.svg?height=512&width=512");
+  background-size: 384px 48px;
+  background-repeat: no-repeat;
+  background-position-y: 0px;
+  image-rendering: pixelated;
+  animation: junimoFloat 8s linear infinite, junimoWalk 1s steps(8) infinite;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.2s ease;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+}
+
+.floating-junimo:hover {
+  transform: scale(1.2);
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.9));
+}
+
+/* Colores para los Junimos */
+.floating-junimo.color-0 {
+  filter: hue-rotate(0deg) saturate(1.5) drop-shadow(0 0 8px rgba(255, 100, 100, 0.8));
+}
+.floating-junimo.color-1 {
+  filter: hue-rotate(60deg) saturate(1.5) drop-shadow(0 0 8px rgba(100, 255, 100, 0.8));
+}
+.floating-junimo.color-2 {
+  filter: hue-rotate(120deg) saturate(1.5) drop-shadow(0 0 8px rgba(100, 100, 255, 0.8));
+}
+.floating-junimo.color-3 {
+  filter: hue-rotate(180deg) saturate(1.5) drop-shadow(0 0 8px rgba(100, 255, 255, 0.8));
+}
+.floating-junimo.color-4 {
+  filter: hue-rotate(240deg) saturate(1.5) drop-shadow(0 0 8px rgba(255, 100, 255, 0.8));
+}
+.floating-junimo.color-5 {
+  filter: hue-rotate(300deg) saturate(1.5) drop-shadow(0 0 8px rgba(255, 255, 100, 0.8));
+}
+
+@keyframes junimoFloat {
+  0% {
+    transform: translateX(-60px) translateY(0px);
+  }
+  25% {
+    transform: translateX(calc(100vw / 4)) translateY(-20px);
+  }
+  50% {
+    transform: translateX(calc(100vw / 2)) translateY(20px);
+  }
+  75% {
+    transform: translateX(calc(100vw * 3 / 4)) translateY(-10px);
+  }
+  100% {
+    transform: translateX(calc(100vw + 60px)) translateY(10px);
+  }
+}
+
+@keyframes junimoWalk {
+  from {
+    background-position-x: 0px;
+  }
+  to {
+    background-position-x: -384px;
+  }
+}
+
+/* --- INDICADOR DE PUNTAJE TOTAL --- */
+.total-score-display {
+  background: linear-gradient(135deg, var(--panel-bg), var(--interactive-bg));
+  border: 2px solid var(--accent-color);
+  border-radius: 15px;
+  padding: 1rem 1.5rem;
+  margin: 1.5rem 0 2rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  box-shadow: 0 0 15px rgba(147, 0, 0, 0.3);
+  display: none; /* Inicialmente oculto */
+}
+
+.total-score-display.visible {
+  display: flex;
+}
+
+.total-score-display i {
+  color: #ffd700;
+  font-size: 1.5rem;
+  animation: serpentine 4s ease-in-out infinite;
+}
+
+/* --- ESTADÍSTICAS DEL JUEGO --- */
+.game-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 1.5rem 0;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.stat-item i {
+  color: var(--accent-color);
+  font-size: 1.2rem;
+}
+
 /* --- ANIMACIONES --- */
 @keyframes fadeInSlideUp {
   from {
@@ -100,7 +230,7 @@ body {
 .home-username {
   font-size: 3rem;
   font-weight: 700;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 
 .home-nav {
@@ -138,13 +268,6 @@ body {
 
 .home-nav-button .icon {
   animation: serpentine 4s ease-in-out infinite;
-}
-
-.vex-icon {
-  background-color: #d82028 !important;
-  color: white;
-  font-weight: bold;
-  font-size: 2rem !important;
 }
 
 /* --- CONTROL DE ANIMACIÓN GLOBAL --- */
@@ -186,7 +309,6 @@ body.is-hovering .icon {
   z-index: 1000;
 }
 
-/* --- OCULTAR SIDEBAR EN INICIO (SOLO PC) --- */
 .sidebar.hidden-on-home {
   transform: translateX(-100%);
 }
@@ -199,7 +321,6 @@ body.is-hovering .icon {
   transition: margin-left 0.3s ease-in-out;
 }
 
-/* --- EXPANDIR CONTENIDO CUANDO SIDEBAR ESTÁ OCULTA --- */
 .main-content.full-width {
   margin-left: 0;
 }
@@ -271,7 +392,6 @@ body.is-hovering .icon {
   scroll-margin-top: 20px;
 }
 
-/* CAMBIO 1: Centrado vertical real para secciones específicas */
 .content-section.centered-content {
   display: flex;
   flex-direction: column;
@@ -413,7 +533,6 @@ body.is-hovering .icon {
   margin-top: 1rem;
 }
 
-/* CAMBIO 2: Animaciones para iconos de redes sociales */
 .social-links {
   display: flex;
   justify-content: center;
@@ -441,28 +560,79 @@ body.is-hovering .icon {
 }
 
 /* --- OTRAS SECCIONES --- */
-.experience-list {
-  list-style: none;
-  margin-top: 1.5rem;
-  max-width: 600px;
-}
+ .experience-list {
+      list-style: none;
+      padding: 0;
+        width: 100%;
 
-.experience-list li {
-  background-color: var(--panel-bg);
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  border-left: 4px solid var(--accent-color);
-}
+    }
 
-.experience-list h4 {
-  margin-bottom: 0.25rem;
-}
+    .experience-item {
+      border-bottom: 1px solid #444;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+    }
 
-.experience-list span {
-  color: var(--secondary-text);
-  font-size: 0.9rem;
-}
+    .experience-toggle {
+      background: none;
+      border: none;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      color: inherit;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+    }
+
+    .experience-toggle h4 {
+      margin: 0;
+    }
+
+    .toggle-icon {
+      transition: transform 0.3s ease;
+    }
+
+    .experience-toggle.open .toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    .experience-details {
+      display: none;
+      margin-top: 0.5rem;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .experience-details.visible {
+      display: block;
+    }
+
+    .experience-gallery {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .experience-gallery img {
+      width: 120px;
+      height: auto;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 2px solid #ccc;
+      transition: transform 0.2s ease;
+    }
+
+    .experience-gallery img:hover {
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
 .contact-links {
   margin-top: 2rem;
@@ -547,6 +717,71 @@ body.is-hovering .icon {
   display: none;
 }
 
+/* --- ESTILOS PARA EL JUEGO SECRETO --- */
+.game-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 2rem auto;
+  background-color: var(--panel-bg);
+  border-radius: 15px;
+  padding: 1rem;
+  border: 1px solid var(--panel-border);
+}
+
+.game-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.fullscreen-btn {
+  background-color: var(--interactive-bg);
+  color: var(--primary-text);
+  border: 1px solid var(--panel-border);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fullscreen-btn:hover {
+  background-color: var(--interactive-hover);
+  transform: scale(1.05);
+}
+
+.game-iframe {
+  width: 100%;
+  height: 600px;
+  border: none;
+  border-radius: 10px;
+  background-color: #000;
+}
+
+.game-container:fullscreen {
+  background-color: #000;
+  padding: 0;
+  border-radius: 0;
+}
+
+.game-container:fullscreen .game-iframe {
+  height: 100vh;
+  border-radius: 0;
+}
+
+.game-container:fullscreen .game-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+}
+
 /* --- RESPONSIVIDAD --- */
 @media (max-width: 768px) {
   .home-username {
@@ -561,6 +796,20 @@ body.is-hovering .icon {
     width: 70px;
     height: 70px;
     font-size: 2rem;
+  }
+
+  .total-score-display {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .game-stats {
+    gap: 1rem;
+  }
+
+  .stat-item {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
   }
 
   #main-portfolio {
@@ -580,7 +829,6 @@ body.is-hovering .icon {
     backdrop-filter: blur(5px);
   }
 
-  /* En móvil, no ocultar sidebar en home */
   .sidebar.hidden-on-home {
     transform: translateX(-100%);
   }
@@ -632,71 +880,7 @@ body.is-hovering .icon {
     flex-direction: column;
     gap: 1rem;
   }
-}
 
-/* AGREGADO: Estilos para el juego secreto */
-.game-container {
-  width: 100%;
-  max-width: 800px;
-  margin: 2rem auto;
-  background-color: var(--panel-bg);
-  border-radius: 15px;
-  padding: 1rem;
-  border: 1px solid var(--panel-border);
-}
-
-.game-controls {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.fullscreen-btn {
-  background-color: var(--interactive-bg);
-  color: var(--primary-text);
-  border: 1px solid var(--panel-border);
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.fullscreen-btn:hover {
-  background-color: var(--interactive-hover);
-  transform: scale(1.05);
-}
-
-.game-iframe {
-  width: 100%;
-  height: 600px;
-  border: none;
-  border-radius: 10px;
-  background-color: #000;
-}
-
-.game-container:fullscreen {
-  background-color: #000;
-  padding: 0;
-  border-radius: 0;
-}
-
-.game-container:fullscreen .game-iframe {
-  height: 100vh;
-  border-radius: 0;
-}
-
-.game-container:fullscreen .game-controls {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1000;
-}
-
-@media (max-width: 768px) {
   .game-container {
     margin: 1rem;
     padding: 0.5rem;
@@ -706,8 +890,50 @@ body.is-hovering .icon {
     height: 400px;
   }
 
-  .fullscreen-btn {
+  .fullscreen-btn
+   {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
   }
+
+  .game-controls {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+.image-container {
+  padding: 10px;
+  margin-top: 50px;
+  position: relative;
+  width: 100%;
+  max-height: 500px;
+  overflow: hidden;
+}
+
+.about-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;        /* Ajusta la imagen al contenedor */
+  object-position: center;  /* Centra la parte visible de la imagen */
+  display: block;
+}
+
+.fade-top,
+.fade-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 80px; /* Puedes ajustar el tamaño del difuminado */
+  pointer-events: none;
+  z-index: 1;
+}
+
+.fade-top {
+  top: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent);
+}
+
+.fade-bottom {
+  bottom: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
 }

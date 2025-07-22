@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,311 +13,980 @@
       margin: 0;
       overflow: hidden;
       background: #111;
-      font-family: 'Silkscreen', cursive; /* Fuente pixelada */
+      font-family: 'Silkscreen', cursive;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: inherit;
+    }
+
+    /* --- Viewport sin borde externo --- */
+    #viewport {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 1200px;
+      max-height: 800px;
+      box-sizing: border-box;
+      overflow: hidden;
+      aspect-ratio: 1200 / 800;
+    }
+
+    /* --- Contenedor del juego con borde más visible --- */
+    #game-world {
+      position: absolute;
+      top: 50px;
+      left: 20px;
+      width: 1100px;
+      height: 725px;
+      overflow: hidden;
+      transform: translate(0, 0);
+      transform-origin: top left;
+      /* Borde más grueso y con efecto de profundidad */
+      border: 2px solid #a8a8a8;
       box-sizing: border-box;
     }
-    *, *::before, *::after {
-        box-sizing: inherit;
+
+    #game-world>*:not(#instructions) {
+      position: absolute;
     }
 
     /* --- Elementos del Juego --- */
-    .sprite, #fruit, #junimo-hut {
+    .sprite,
+    #fruit,
+    #junimo-hut,
+    .enemy-slime {
       position: absolute;
-      image-rendering: pixelated; /* Mantiene el estilo pixel art al escalar */
+      image-rendering: pixelated;
       background-repeat: no-repeat;
     }
 
     /* --- Junimo (Personaje) --- */
     .sprite {
-      top: 50%;
-      left: 50%;
-      width: 64px;   /* Mitad de 128px */
-      height: 64px;  /* Mitad de 128px */
+      width: 64px;
+      height: 64px;
       background-image: url('img/Junimo.png');
-      background-size: 512px 512px; /* Mitad de 1024px */
-      background-position-y: -64px; /* Fila 2: quieto */
+      background-size: 512px 512px;
+      background-position-y: -64px;
       filter: hue-rotate(1000deg) saturate(11);
       animation: idle 1s steps(8) infinite;
       z-index: 10;
       transform: translate(-50%, -50%);
     }
 
-    .walking-down { background-position-y: 0px; }
-    .walking-right { background-position-y: -128px; } /* Mitad de -256px */
-    .walking-up { background-position-y: -256px; }  /* Mitad de -512px */
+    .walking-down {
+      background-position-y: 0px;
+    }
+
+    .walking-right {
+      background-position-y: -128px;
+    }
+
+    .walking-up {
+      background-position-y: -256px;
+    }
 
     @keyframes idle {
-      from { background-position-x: 0px; }
-      to   { background-position-x: -512px; } /* Mitad de -1024px */
+      from {
+        background-position-x: 0px;
+      }
+
+      to {
+        background-position-x: -512px;
+      }
     }
 
     @keyframes walk {
-      from { background-position-x: 0px; }
-      to   { background-position-x: -512px; } /* Mitad de -1024px */
+      from {
+        background-position-x: 0px;
+      }
+
+      to {
+        background-position-x: -512px;
+      }
     }
 
     .walking {
       animation: walk 0.5s steps(8) infinite;
     }
 
+    /* --- Enemigo Slime con brillo correcto --- */
+    .enemy-slime {
+      width: 60px;
+      height: 45px;
+      background-image: url('img/slime.png');
+      background-size: 250px 100px;
+      background-position-y: 0px;
+      animation: slimeIdle 1.2s steps(4) infinite;
+      z-index: 8;
+      transform: translate(-50%, -50%);
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 3px rgba(255, 255, 255, 0.4));
+      transition: filter 0.2s ease-out;
+    }
+
+    @keyframes slimeIdle {
+      from {
+        background-position-x: 0px;
+      }
+
+      to {
+        background-position-x: -256px;
+      }
+    }
+
+    .enemy-moving {
+      animation: slimeMove 0.8s steps(4) infinite;
+      /* Intensificar el brillo cuando se mueve */
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 3px rgba(255, 255, 255, 0.4)) !important;
+    }
+
+    @keyframes slimeMove {
+      from {
+        background-position-x: 0px;
+      }
+
+      to {
+        background-position-x: -256px;
+      }
+    }
+
+    .enemy-slime.moving-left {
+      transform: translate(-50%, -50%) scaleX(-1);
+    }
+
+    .enemy-slime.moving-right {
+      transform: translate(-50%, -50%) scaleX(1);
+    }
+
     /* --- Fruta --- */
     #fruit {
-      /* Mitad del tamaño anterior */
       width: 53.2px;
       height: 55.3px;
       background-image: url('img/fruta.png');
-      background-size: 320px 440px; /* Mitad del tamaño anterior */
-      /* Fila 2, Columna 3 */
-      background-position: -53.3px -55.3px; 
+      background-size: 320px 440px;
+      background-position: -53.3px -55.3px;
       z-index: 5;
       transform: translate(-50%, -50%);
+      animation: fruitGlow 1.5s ease-in-out infinite alternate;
     }
 
-    /* --- Casa y Contador --- */
+    @keyframes fruitGlow {
+      from {
+        filter: drop-shadow(0 0 5px rgba(255, 255, 0, 0.5));
+      }
+
+      to {
+        filter: drop-shadow(0 0 15px rgba(255, 255, 0, 0.9));
+      }
+    }
+
+    /* --- Casa Junimo --- */
     #junimo-hut {
-      /* Mitad del tamaño anterior */
       width: 95.4px;
       height: 128px;
       background-image: url('img/casa.png');
-      background-size: 512px 128px; /* Mitad del tamaño anterior */
+      background-size: 512px 128px;
       background-position: 0 0;
-      /* Nueva posición: Esquina superior derecha con margen */
-      top: 20px;
-      right: 20px;
-      transform: none; /* Ya no necesita centrarse */
+      transform: translate(-50%, -50%);
+      z-index: 6;
     }
 
-    #score {
-      position: absolute;
-      /* Posicionado debajo de la casa */
-      top: 100%; 
-      left: 50%;
-      transform: translateX(-50%);
-      margin-top: 5px;
+    /* --- Barra de UI Unificada --- */
+    #unified-ui {
+      position: fixed;
+      z-index: 200;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 20, 0.9));
+      border: 3px solid #a8a8a8;
+      border-radius: 1px;
+      padding: 10px;
       color: white;
-      font-size: 2em;
-      text-shadow: 2px 2px #000;
+      font-size: 1.2em;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+      box-shadow:
+        0 0 5px rgba(144, 238, 144, 0.3),
+        inset 0 0 1px rgba(144, 238, 144, 0.1);
+      backdrop-filter: blur(5px);
     }
-    
+
+    .ui-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 2px 0;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(144, 238, 144, 0.3);
+    }
+
+    .ui-item:last-child {
+      border-bottom: none;
+    }
+
+    .ui-label {
+      color: #a8a8a8;
+      margin-right: 15px;
+    }
+
+    .ui-value {
+      color: white;
+      font-weight: bold;
+    }
+
+    /* Barra de progreso mejorada */
+    .progress-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 20px;
+      background: linear-gradient(90deg, #333, #555);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid #90EE90;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #90EE90, #32CD32, #90EE90);
+      width: 0%;
+      transition: width 0.3s ease-out;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(144, 238, 144, 0.5);
+    }
+
+    /* --- Instrucciones --- */
+    #instructions {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      z-index: 210;
+      font-size: 1.2em;
+      border: 3px solid #a8a8a8;
+      box-shadow: 0 0 10px rgba(144, 238, 144, 0.5);
+    }
+
+    #instructions h3 {
+      margin-bottom: 15px;
+      color: #a8a8a8;
+      text-shadow: 0 0 1px rgba(144, 238, 144, 0.8);
+    }
+
+    #instructions p {
+      margin: 10px 0;
+      line-height: 1.4;
+    }
+
     /* --- Controles para Móvil --- */
     #mobile-controls {
-      display: none; /* Ocultos por defecto */
+      display: none;
       position: fixed;
-      /* Centrados en la parte inferior */
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      z-index: 100;
-      opacity: 0.7;
+      z-index: 200;
+      opacity: 0.8;
     }
+
     #mobile-controls .d-pad {
       display: grid;
-      /* Botones más grandes */
       grid-template-columns: repeat(3, 65px);
       grid-template-rows: repeat(3, 65px);
       gap: 10px;
     }
+
     #mobile-controls .d-pad-button {
-      background-color: rgba(255, 255, 255, 0.5);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(200, 200, 200, 0.6));
       border-radius: 15px;
       border: 2px solid white;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 32px; /* Ícono más grande */
+      font-size: 32px;
       color: white;
       user-select: none;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
     }
-    #up { grid-area: 1 / 2 / 2 / 3; }
-    #left { grid-area: 2 / 1 / 3 / 2; }
-    #right { grid-area: 2 / 3 / 3 / 4; }
-    #down { grid-area: 3 / 2 / 4 / 3; }
-    
+
+    #up {
+      grid-area: 1 / 2 / 2 / 3;
+    }
+
+    #left {
+      grid-area: 2 / 1 / 3 / 2;
+    }
+
+    #right {
+      grid-area: 2 / 3 / 3 / 4;
+    }
+
+    #down {
+      grid-area: 3 / 2 / 4 / 3;
+    }
+
     /* --- Pantalla Final --- */
     #game-over-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.8);
-        color: white;
-        display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 250;
+      padding: 2rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ------------------------------------------------------------------- */
+    /* RESPONSIVIDAD DE UI */
+    /* ------------------------------------------------------------------- */
+    /* Reglas para PC (pantallas grandes) */
+    @media (min-width: 769px) {
+      body {
+        padding-right: 280px;
+        /* Espacio para la barra lateral */
+        justify-content: flex-start;
+        align-items: center;
+        padding-left: 20px;
+      }
+
+      #unified-ui {
+        top: 50%;
+        right: 20px;
+        transform: translateY(-50%);
+        width: 240px;
         flex-direction: column;
+      }
+
+      .progress-container {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 20px;
+      }
+
+      .progress-fill {
+        width: 0%;
+        height: 100%;
+      }
+    }
+
+    /* Reglas para Móvil (pantallas pequeñas) */
+    @media (max-width: 768px),
+    (max-height: 600px) {
+      body {
+        padding: 0;
+        padding-top: 120px;
+        /* Espacio para la barra superior */
         justify-content: center;
         align-items: center;
-        text-align: center;
-        z-index: 200;
-        /* Padding para centrar mejor el texto */
-        padding: 2rem;
-    }
-    .hidden {
-        display: none !important;
+      }
+
+      #unified-ui {
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 30px);
+        max-width: 400px;
+        flex-direction: column;
+      }
+
+      .ui-item {
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      .progress-container {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .progress-bar {
+        flex: 1;
+        height: 15px;
+      }
+
+      .progress-fill {
+        width: 0%;
+        height: 100%;
+      }
+
+      #unified-ui {
+        font-size: 1em;
+        padding: 12px;
+      }
     }
   </style>
 </head>
-<body>
 
-  <div id="junimo-hut">
-    <div id="score">0</div>
+<body>
+  <div id="viewport">
+    <div id="game-world">
+      <div id="junimo-hut"></div>
+      <div id="fruit"></div>
+      <div class="sprite" id="sprite"></div>
+
+      <div id="instructions">
+        <h3>🎮 Instrucciones</h3>
+        <p>🏃 Usa WASD o las flechas para moverte</p>
+        <p>🍓 Recoge las frutas y llévalas a la casa</p>
+        <p>👾 ¡Evita a los slimes!</p>
+        <p>🎯 Objetivo: ¡Completa los 6 niveles!</p>
+      </div>
+    </div>
   </div>
-  
-  <div id="fruit"></div>
-  <div class="sprite" id="sprite"></div>
+
+  <!-- Barra de UI Unificada -->
+  <div id="unified-ui">
+    <div class="ui-item">
+      <span class="ui-label">Score:</span>
+      <span class="ui-value" id="score-value">0</span>
+    </div>
+    <div class="ui-item">
+      <span class="ui-label">Nivel:</span>
+      <span class="ui-value" id="level-value">1</span>
+    </div>
+    <div class="ui-item">
+      <span class="ui-label">Frutas:</span>
+      <div class="progress-container">
+        <span class="ui-value" id="fruits-text">0/5</span>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div id="game-over-screen" class="hidden">
-      <h1>¡Este es solo un experimento!</h1>
-      <p>Gracias por recoger las frutas por mí.<br>¡Me sorprende que hayas encontrado la combinación para jugar o que insertes el código Konami en todos lados!</p>
+    <h1>¡Felicidades!</h1>
+    <p>Has completado todos los niveles.<br>¡Gracias por jugar!</p>
+    <button id="restart-button"
+      style="padding: 10px 20px; font-size: 1.2em; cursor: pointer; margin-top: 20px; border-radius: 8px; border: 2px solid #90EE90; background: linear-gradient(135deg, #333, #555); color: white;">Jugar
+      de Nuevo</button>
   </div>
 
   <div id="mobile-controls">
     <div class="d-pad">
-        <div class="d-pad-button" id="up">▲</div>
-        <div class="d-pad-button" id="left">◀</div>
-        <div class="d-pad-button" id="right">▶</div>
-        <div class="d-pad-button" id="down">▼</div>
+      <div class="d-pad-button" id="up">▲</div>
+      <div class="d-pad-button" id="left">◀</div>
+      <div class="d-pad-button" id="right">▶</div>
+      <div class="d-pad-button" id="down">▼</div>
     </div>
   </div>
 
   <script>
     // --- Elementos del DOM ---
+    const gameWorld = document.getElementById('game-world');
+    const viewport = document.getElementById('viewport');
     const sprite = document.getElementById('sprite');
     const fruit = document.getElementById('fruit');
     const hut = document.getElementById('junimo-hut');
-    const scoreDisplay = document.getElementById('score');
+    const scoreValue = document.getElementById('score-value');
+    const levelValue = document.getElementById('level-value');
+    const fruitsText = document.getElementById('fruits-text');
     const gameOverScreen = document.getElementById('game-over-screen');
+    const instructions = document.getElementById('instructions');
+    const restartButton = document.getElementById('restart-button');
+    const progressFill = document.getElementById('progress-fill');
+
+    // --- Configuración del mundo del juego ---
+    const WORLD_WIDTH = 1200;
+    const WORLD_HEIGHT = 800;
+    const WORLD_BORDER_THICKNESS = 20;
+    const PLAYABLE_WIDTH = WORLD_WIDTH - (WORLD_BORDER_THICKNESS * 2);
+    const PLAYABLE_HEIGHT = WORLD_HEIGHT - (WORLD_BORDER_THICKNESS * 2);
+
+    let currentViewportWidth = 0;
+    let currentViewportHeight = 0;
+    let scaleRatio = 1;
 
     // --- Estado del Juego ---
-    let x = window.innerWidth / 2;
-    let y = window.innerHeight / 2;
-    const speed = 5; 
+    let playerX;
+    let playerY;
+    const speed = 5;
     let score = 0;
+    let level = 1;
+    let fruitsCollectedInLevel = 0;
+    const fruitToNextLevel = 5;
     let hasFruit = false;
     let gameOver = false;
-    
+    let gameStarted = false;
+    let cameraX = 0;
+    let cameraY = 0;
+    let totalScore = 0;
+
+    // --- Slimes ---
+    const slimes = [];
+    const maxSlimes = 6;
+    const baseEnemySpeed = 1.5;
+    const speedIncreasePerLevel = 0.15;
+
+    // Colores para los slimes (filtros hue-rotate) - CORREGIDO
+    const slimeColors = [
+      'hue-rotate(0deg) saturate(2) drop-shadow(0 0 8px rgba(255, 100, 100, 0.8)) drop-shadow(0 0 15px rgba(255, 100, 100, 0.4))',
+      'hue-rotate(60deg) saturate(2) drop-shadow(0 0 8px rgba(100, 255, 100, 0.8)) drop-shadow(0 0 15px rgba(100, 255, 100, 0.4))',
+      'hue-rotate(120deg) saturate(2) drop-shadow(0 0 8px rgba(100, 100, 255, 0.8)) drop-shadow(0 0 15px rgba(100, 100, 255, 0.4))',
+      'hue-rotate(180deg) saturate(2) drop-shadow(0 0 8px rgba(100, 255, 255, 0.8)) drop-shadow(0 0 15px rgba(100, 255, 255, 0.4))',
+      'hue-rotate(240deg) saturate(2) drop-shadow(0 0 8px rgba(255, 100, 255, 0.8)) drop-shadow(0 0 15px rgba(255, 100, 255, 0.4))',
+      'hue-rotate(300deg) saturate(2) drop-shadow(0 0 8px rgba(255, 255, 100, 0.8)) drop-shadow(0 0 15px rgba(255, 255, 100, 0.4))'
+    ];
+
+    // Definir las 8 secciones de patrulla
+    const patrolSections = [];
+    const sectionWidth = PLAYABLE_WIDTH / 4;
+    const sectionHeight = PLAYABLE_HEIGHT / 2;
+    for (let row = 0; row < 2; row++) {
+      for (let col = 0; col < 4; col++) {
+        patrolSections.push({
+          minX: WORLD_BORDER_THICKNESS + col * sectionWidth,
+          maxX: WORLD_BORDER_THICKNESS + (col + 1) * sectionWidth,
+          minY: WORLD_BORDER_THICKNESS + row * sectionHeight,
+          maxY: WORLD_BORDER_THICKNESS + (row + 1) * sectionHeight
+        });
+      }
+    }
+
     const keysPressed = {};
     let lastDirection = 'down';
 
+    // --- Comunicación con la página principal ---
+    function updateParentScore() {
+      totalScore = score;
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: 'GAME_SCORE_UPDATE',
+          totalScore: totalScore
+        }, '*');
+      }
+    }
+
+    function notifyGameWin() {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({
+          type: 'GAME_WIN'
+        }, '*');
+      }
+    }
+
+    // --- Inicializar posiciones ---
+    function initializeGame() {
+      const hutWidth = parseFloat(getComputedStyle(hut).width);
+      const hutHeight = parseFloat(getComputedStyle(hut).height);
+      hut.style.left = `${WORLD_WIDTH / 2}px`;
+      hut.style.top = `${WORLD_HEIGHT / 2}px`;
+
+      playerX = WORLD_WIDTH / 2;
+      playerY = (WORLD_HEIGHT / 2) + (hutHeight / 2) + (64 / 2) + 10;
+
+      sprite.style.left = `${playerX}px`;
+      sprite.style.top = `${playerY}px`;
+
+      addSlime();
+
+      spawnFruit();
+      updateScalingAndCamera();
+      updateUI();
+    }
+
     function spawnFruit() {
-        const margin = 50; // Para que no aparezca en los bordes
-        // Usar clientWidth/clientHeight para mayor compatibilidad móvil
-        const screenWidth = document.documentElement.clientWidth;
-        const screenHeight = document.documentElement.clientHeight;
+      const margin = 80 + WORLD_BORDER_THICKNESS;
+      const randomX = Math.random() * (PLAYABLE_WIDTH - margin * 2) + margin;
+      const randomY = Math.random() * (PLAYABLE_HEIGHT - margin * 2) + margin;
 
-        const randomX = Math.random() * (screenWidth - margin * 2) + margin;
-        const randomY = Math.random() * (screenHeight - margin * 2) + margin;
-        fruit.style.left = `${randomX}px`;
-        fruit.style.top = `${randomY}px`;
-        fruit.style.display = 'block';
+      fruit.style.left = `${randomX}px`;
+      fruit.style.top = `${randomY}px`;
+      fruit.style.display = 'block';
     }
 
-    function checkCollision(obj1, obj2) {
-      const rect1 = obj1.getBoundingClientRect();
-      const rect2 = obj2.getBoundingClientRect();
-      const dx = (rect1.left + rect1.width / 2) - (rect2.left + rect2.width / 2);
-      const dy = (rect1.top + rect1.height / 2) - (rect2.top + rect2.height / 2);
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      return distance < (rect1.width / 2.5 + rect2.width / 2.5);
+    function updateScalingAndCamera() {
+      currentViewportWidth = viewport.offsetWidth;
+      currentViewportHeight = viewport.offsetHeight;
+      scaleRatio = Math.min(currentViewportWidth / WORLD_WIDTH, currentViewportHeight / WORLD_HEIGHT);
+
+      cameraX = playerX - (currentViewportWidth / scaleRatio) / 2;
+      cameraY = playerY - (currentViewportHeight / scaleRatio) / 2;
+
+      cameraX = Math.max(WORLD_BORDER_THICKNESS, Math.min(cameraX, WORLD_WIDTH - (currentViewportWidth / scaleRatio) - WORLD_BORDER_THICKNESS));
+      cameraY = Math.max(WORLD_BORDER_THICKNESS, Math.min(cameraY, WORLD_HEIGHT - (currentViewportHeight / scaleRatio) - WORLD_BORDER_THICKNESS));
+      gameWorld.style.transform = `scale(${scaleRatio}) translate(${-cameraX}px, ${-cameraY}px)`;
     }
-    
+
+    function checkCollision(obj1X, obj1Y, obj1W, obj1H, obj2X, obj2Y, obj2W, obj2H) {
+      // Reducir en 20% el tamaño del segundo objeto (slime) para colisión más precisa
+      const scaleFactor = 0.1;
+      const reducedW = obj2W * scaleFactor;
+      const reducedH = obj2H * scaleFactor;
+
+      const obj1Left = obj1X - obj1W / 2;
+      const obj1Right = obj1X + obj1W / 2;
+      const obj1Top = obj1Y - obj1H / 2;
+      const obj1Bottom = obj1Y + obj1H / 2;
+
+      const obj2Left = obj2X - reducedW / 2;
+      const obj2Right = obj2X + reducedW / 2;
+      const obj2Top = obj2Y - reducedH / 2;
+      const obj2Bottom = obj2Y + reducedH / 2;
+
+      return obj1Left < obj2Right &&
+        obj1Right > obj2Left &&
+        obj1Top < obj2Bottom &&
+        obj1Bottom > obj2Top;
+    }
+
+    // --- Función para agregar un nuevo slime ---
+    function addSlime() {
+      if (slimes.length >= maxSlimes) return;
+
+      const newSlime = document.createElement('div');
+      newSlime.classList.add('enemy-slime');
+      gameWorld.appendChild(newSlime);
+
+      // Asignar color basado en el índice del slime - CORREGIDO
+      const colorIndex = slimes.length % slimeColors.length;
+      newSlime.style.filter = slimeColors[colorIndex];
+
+      let slimeX, slimeY;
+      let validPosition = false;
+      const minDistance = 200;
+      const preferredSectionIndex = Math.floor(Math.random() * patrolSections.length);
+      const preferredSection = patrolSections[preferredSectionIndex];
+
+      while (!validPosition) {
+        slimeX = Math.random() * (preferredSection.maxX - preferredSection.minX) + preferredSection.minX;
+        slimeY = Math.random() * (preferredSection.maxY - preferredSection.minY) + preferredSection.minY;
+
+        const distPlayer = Math.sqrt(Math.pow(slimeX - playerX, 2) + Math.pow(slimeY - playerY, 2));
+        const hutX = parseFloat(hut.style.left);
+        const hutY = parseFloat(hut.style.top);
+        const distHut = Math.sqrt(Math.pow(slimeX - hutX, 2) + Math.pow(slimeY - hutY, 2));
+
+        if (distPlayer > minDistance && distHut > minDistance) {
+          validPosition = true;
+        }
+      }
+
+      newSlime.style.left = `${slimeX}px`;
+      newSlime.style.top = `${slimeY}px`;
+
+      slimes.push({
+        element: newSlime,
+        x: slimeX,
+        y: slimeY,
+        speed: baseEnemySpeed,
+        targetX: slimeX,
+        targetY: slimeY,
+        movementMode: 'patrol',
+        preferredSection: preferredSection,
+        patrolCooldown: 0,
+        chaseCooldown: 0,
+        chaseDuration: 60 * 3,
+        patrolDuration: 60 * 2,
+        detectionRadius: 250
+      });
+    }
+
+    // --- Mover Slimes con comportamiento individual ---
+    function moveSlimesTowardsPlayer() {
+      if (!gameStarted) return;
+
+      slimes.forEach((slime) => {
+        const prevSlimeX = slime.x;
+        let currentSlimeSpeed = slime.speed;
+
+        if (level >= 4 && level <= 6) {
+          currentSlimeSpeed = slime.speed * (1 + (level - 3) * speedIncreasePerLevel);
+        }
+
+        const distToPlayer = Math.sqrt(Math.pow(playerX - slime.x, 2) + Math.pow(playerY - slime.y, 2));
+
+        // Lógica de transición entre modos
+        if (slime.movementMode === 'chasing') {
+          slime.chaseCooldown--;
+          if (slime.chaseCooldown <= 0 || distToPlayer > slime.detectionRadius * 1.5) {
+            slime.movementMode = 'patrol';
+            slime.patrolCooldown = 0;
+          } else {
+            slime.targetX = playerX;
+            slime.targetY = playerY;
+          }
+        } else {
+          if (distToPlayer < slime.detectionRadius) {
+            slime.movementMode = 'chasing';
+            slime.chaseCooldown = slime.chaseDuration;
+            slime.targetX = playerX;
+            slime.targetY = playerY;
+          } else {
+            slime.patrolCooldown--;
+            if (slime.patrolCooldown <= 0 || (Math.abs(slime.x - slime.targetX) < 10 && Math.abs(slime.y - slime.targetY) < 10)) {
+              slime.patrolCooldown = slime.patrolDuration;
+              slime.targetX = Math.random() * (slime.preferredSection.maxX - slime.preferredSection.minX) + slime.preferredSection.minX;
+              slime.targetY = Math.random() * (slime.preferredSection.maxY - slime.preferredSection.minY) + slime.preferredSection.minY;
+            }
+          }
+        }
+
+        // Mover hacia el target
+        const dx = slime.targetX - slime.x;
+        const dy = slime.targetY - slime.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance > 5) {
+          slime.x += (dx / distance) * currentSlimeSpeed;
+          slime.y += (dy / distance) * currentSlimeSpeed;
+
+          const slimeHalfSize = 32;
+          slime.x = Math.max(WORLD_BORDER_THICKNESS + slimeHalfSize, Math.min(slime.x, WORLD_WIDTH - WORLD_BORDER_THICKNESS - slimeHalfSize));
+          slime.y = Math.max(WORLD_BORDER_THICKNESS + slimeHalfSize, Math.min(slime.y, WORLD_HEIGHT - WORLD_BORDER_THICKNESS - slimeHalfSize));
+
+          slime.element.style.left = `${slime.x}px`;
+          slime.element.style.top = `${slime.y}px`;
+
+          slime.element.classList.add('enemy-moving');
+          if (slime.x < prevSlimeX) {
+            slime.element.classList.add('moving-left');
+            slime.element.classList.remove('moving-right');
+          } else if (slime.x > prevSlimeX) {
+            slime.element.classList.add('moving-right');
+            slime.element.classList.remove('moving-left');
+          }
+        } else {
+          slime.element.classList.remove('enemy-moving');
+        }
+
+        // Colisión con el jugador
+        if (checkCollision(playerX, playerY, 64, 64, slime.x, slime.y, 64, 64)) {
+          resetGame();
+          return;
+        }
+      });
+    }
+
+    // --- Actualizar toda la UI ---
+    function updateUI() {
+      scoreValue.textContent = score;
+      levelValue.textContent = level;
+      fruitsText.textContent = `${fruitsCollectedInLevel}/${fruitToNextLevel}`;
+
+      const progressPercentage = (fruitsCollectedInLevel / fruitToNextLevel) * 100;
+      progressFill.style.width = `${progressPercentage}%`;
+
+      updateParentScore();
+    }
+
+    function resetGame() {
+      score = 0;
+      level = 1;
+      fruitsCollectedInLevel = 0;
+      hasFruit = false;
+      gameStarted = false;
+      gameOver = false;
+
+      slimes.forEach(slime => slime.element.remove());
+      slimes.length = 0;
+
+      const hutWidth = parseFloat(getComputedStyle(hut).width);
+      const hutHeight = parseFloat(getComputedStyle(hut).height);
+      hut.style.left = `${WORLD_WIDTH / 2}px`;
+      hut.style.top = `${WORLD_HEIGHT / 2}px`;
+
+      playerX = WORLD_WIDTH / 2;
+      playerY = (WORLD_HEIGHT / 2) + (hutHeight / 2) + (64 / 2) + 10;
+
+      sprite.style.left = `${playerX}px`;
+      sprite.style.top = `${playerY}px`;
+
+      addSlime();
+      gameOverScreen.classList.add('hidden');
+      instructions.classList.remove('hidden');
+
+      setTimeout(() => {
+        spawnFruit();
+        updateScalingAndCamera();
+        updateUI();
+      }, 500);
+    }
+
     function gameLoop() {
-        if (gameOver) return;
+      if (gameOver) return;
 
-        let moved = false;
-        // --- Movimiento ---
-        if (keysPressed.w || keysPressed.ArrowUp) { y -= speed; lastDirection = 'up'; moved = true; }
-        if (keysPressed.s || keysPressed.ArrowDown) { y += speed; lastDirection = 'down'; moved = true; }
-        if (keysPressed.a || keysPressed.ArrowLeft) { x -= speed; lastDirection = 'left'; moved = true; }
-        if (keysPressed.d || keysPressed.ArrowRight) { x += speed; lastDirection = 'right'; moved = true; }
+      let moved = false;
+      let newPlayerX = playerX;
+      let newPlayerY = playerY;
 
-        // --- Límites de la Pantalla (CORREGIDO) ---
-        const spriteWidth = sprite.offsetWidth;
-        const spriteHeight = sprite.offsetHeight;
-        const screenWidth = document.documentElement.clientWidth;
-        const screenHeight = document.documentElement.clientHeight;
+      if (keysPressed.w || keysPressed.ArrowUp) {
+        newPlayerY -= speed;
+        lastDirection = 'up';
+        moved = true;
+      }
+      if (keysPressed.s || keysPressed.ArrowDown) {
+        newPlayerY += speed;
+        lastDirection = 'down';
+        moved = true;
+      }
+      if (keysPressed.a || keysPressed.ArrowLeft) {
+        newPlayerX -= speed;
+        lastDirection = 'left';
+        moved = true;
+      }
+      if (keysPressed.d || keysPressed.ArrowRight) {
+        newPlayerX += speed;
+        lastDirection = 'right';
+        moved = true;
+      }
 
-        if (x < spriteWidth / 2) x = spriteWidth / 2;
-        if (y < spriteHeight / 2) y = spriteHeight / 2;
-        if (x > screenWidth - spriteWidth / 2) x = screenWidth - spriteWidth / 2;
-        if (y > screenHeight - spriteHeight / 2) y = screenHeight - spriteHeight / 2;
+      if (moved && !gameStarted) {
+        gameStarted = true;
+        instructions.classList.add('hidden');
+      }
 
+      const playerHalfWidth = 64 / 2;
+      const playerHalfHeight = 64 / 2;
+      playerX = Math.max(WORLD_BORDER_THICKNESS + playerHalfWidth, Math.min(newPlayerX, WORLD_WIDTH - WORLD_BORDER_THICKNESS - playerHalfWidth));
+      playerY = Math.max(WORLD_BORDER_THICKNESS + playerHalfHeight, Math.min(newPlayerY, WORLD_HEIGHT - WORLD_BORDER_THICKNESS - playerHalfHeight));
 
-        // --- Actualizar Posición del Junimo ---
-        sprite.style.left = `${x}px`;
-        sprite.style.top = `${y}px`;
+      sprite.style.left = `${playerX}px`;
+      sprite.style.top = `${playerY}px`;
 
-        // --- Actualizar Animación ---
-        if (moved) {
-            sprite.classList.add('walking');
-            sprite.classList.remove('walking-up', 'walking-down', 'walking-right');
-            switch (lastDirection) {
-                case 'up': sprite.classList.add('walking-up'); break;
-                case 'down': sprite.classList.add('walking-down'); break;
-                case 'left':
-                    sprite.classList.add('walking-right');
-                    sprite.style.transform = 'translate(-50%, -50%) scaleX(-1)';
-                    break;
-                case 'right':
-                    sprite.classList.add('walking-right');
-                    sprite.style.transform = 'translate(-50%, -50%) scaleX(1)';
-                    break;
-            }
-        } else {
-            sprite.classList.remove('walking');
+      updateScalingAndCamera();
+
+      if (moved) {
+        sprite.classList.add('walking');
+        sprite.classList.remove('walking-up', 'walking-down', 'walking-right');
+        switch (lastDirection) {
+          case 'up': sprite.classList.add('walking-up'); break;
+          case 'down': sprite.classList.add('walking-down'); break;
+          case 'left':
+            sprite.classList.add('walking-right');
+            sprite.style.transform = 'translate(-50%, -50%) scaleX(-1)';
+            break;
+          case 'right':
+            sprite.classList.add('walking-right');
+            sprite.style.transform = 'translate(-50%, -50%) scaleX(1)';
+            break;
         }
-        
-        // --- Lógica de la Fruta ---
-        if (hasFruit) {
-            fruit.style.left = `${x}px`;
-            fruit.style.top = `${y - spriteHeight / 2}px`;
-            
-            if (checkCollision(sprite, hut)) {
-                hasFruit = false;
-                fruit.style.display = 'none';
-                score++;
-                scoreDisplay.textContent = score;
+      } else {
+        sprite.classList.remove('walking');
+      }
 
-                if (score >= 10) {
-                    gameOver = true;
-                    gameOverScreen.classList.remove('hidden');
-                } else {
-                    setTimeout(spawnFruit, 500);
-                }
-            }
-        } else {
-            // Evitar recoger fruta si acaba de ser depositada
-            if (fruit.style.display !== 'none' && checkCollision(sprite, fruit)) {
-                hasFruit = true;
-            }
+      moveSlimesTowardsPlayer();
+
+      if (hasFruit) {
+        fruit.style.left = `${playerX}px`;
+        fruit.style.top = `${playerY - 32}px`;
+
+        const hutX = parseFloat(hut.style.left);
+        const hutY = parseFloat(hut.style.top);
+
+        if (checkCollision(playerX, playerY, 64, 64, hutX, hutY, 95.4, 128)) {
+          hasFruit = false;
+          fruit.style.display = 'none';
+          score++;
+          fruitsCollectedInLevel++;
+
+          if (fruitsCollectedInLevel >= fruitToNextLevel && level < maxSlimes) {
+            level++;
+            fruitsCollectedInLevel = 0;
+            addSlime();
+            notifyGameWin(); // Notificar victoria de nivel
+          }
+
+          updateUI();
+
+          if (level >= maxSlimes && fruitsCollectedInLevel >= fruitToNextLevel) {
+            gameOver = true;
+            notifyGameWin(); // Notificar victoria final
+            gameOverScreen.classList.remove('hidden');
+          } else {
+            setTimeout(spawnFruit, 500);
+          }
         }
+      } else {
+        const fruitX = parseFloat(fruit.style.left);
+        const fruitY = parseFloat(fruit.style.top);
 
-        requestAnimationFrame(gameLoop);
+        if (fruit.style.display !== 'none' &&
+          checkCollision(playerX, playerY, 64, 64, fruitX, fruitY, 53.2, 55.3)) {
+          hasFruit = true;
+        }
+      }
+
+      requestAnimationFrame(gameLoop);
     }
-    
-    // --- Event Listeners Teclado ---
-    document.addEventListener('keydown', (e) => { keysPressed[e.key] = true; });
-    document.addEventListener('keyup', (e) => { keysPressed[e.key] = false; });
-    
-    // --- Lógica para Controles Móviles ---
+
+    // --- Event Listeners ---
+    document.addEventListener('keydown', (e) => {
+      keysPressed[e.key] = true;
+    });
+
+    document.addEventListener('keyup', (e) => {
+      keysPressed[e.key] = false;
+    });
+
+    window.addEventListener('resize', () => {
+      updateScalingAndCamera();
+      updateUI();
+    });
+
+    restartButton.addEventListener('click', () => {
+      resetGame();
+    });
+
+    // --- Controles móviles ---
     function setupMobileControls() {
-        if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-            document.getElementById('mobile-controls').style.display = 'block';
-            
-            const buttons = document.querySelectorAll('.d-pad-button');
-            const keyMap = { up: 'w', down: 's', left: 'a', right: 'd' };
+      if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
+        document.getElementById('mobile-controls').style.display = 'block';
 
-            buttons.forEach(button => {
-                const key = keyMap[button.id];
-                button.addEventListener('touchstart', (e) => { e.preventDefault(); keysPressed[key] = true; });
-                button.addEventListener('touchend', (e) => { e.preventDefault(); keysPressed[key] = false; });
-            });
-        }
+        const buttons = document.querySelectorAll('.d-pad-button');
+        const keyMap = { up: 'w', down: 's', left: 'a', right: 'd' };
+
+        buttons.forEach(button => {
+          const key = keyMap[button.id];
+          button.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            keysPressed[key] = true;
+          }, { passive: false });
+          button.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keysPressed[key] = false;
+          });
+        });
+      }
     }
 
-    // --- Iniciar Juego ---
-    spawnFruit();
+    // --- Inicializar juego ---
+    initializeGame();
     setupMobileControls();
     gameLoop();
   </script>
 </body>
+
 </html>

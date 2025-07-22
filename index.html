@@ -8,12 +8,22 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 </head>
 <body>
-  <!-- Splashscreen mantenido exactamente igual -->
+  <!-- Contenedor para Junimos flotantes -->
+  <div id="junimos-container"></div>
+
+  <!-- Splashscreen -->
   <div id="home-screen" class="home-screen">
     <div id="stars"></div>
     <div class="home-content">
       <div class="home-profile-img animated-element"></div>
       <h1 class="home-username animated-element">Measly543</h1>
+      
+      <!-- Indicador de puntaje total -->
+      <div id="total-score-display" class="total-score-display animated-element">
+        <i class="fa-solid fa-trophy"></i>
+        <span>Puntaje Total: <span id="total-score-value">0</span></span>
+      </div>
+      
       <nav class="home-nav">
         <a href="#about" class="home-nav-button interactive-element animated-element">
           <div class="icon-container"><i class="fa-solid fa-user icon"></i></div>
@@ -24,14 +34,13 @@
           <span>Proyectos</span>
         </a>
         <a href="#experience" class="home-nav-button interactive-element animated-element">
-          <div class="icon-container vex-icon"><span>VEX</span></div>
+          <div class="icon-container"><i class="fa-solid fa-camera-retro icon"></i></div>
           <span>Experiencias</span>
         </a>
         <a href="#contact" class="home-nav-button interactive-element animated-element">
           <div class="icon-container"><i class="fa-solid fa-phone icon"></i></div>
           <span>Contacto</span>
         </a>
-        <!-- AGREGADO: Botón del juego secreto -->
         <a href="#secret-game" id="home-secret-button" class="home-nav-button interactive-element animated-element" style="display: none;">
           <div class="icon-container"><i class="fa-solid fa-gamepad icon"></i></div>
           <span>Juego</span>
@@ -47,7 +56,7 @@
       <i class="fa-solid fa-bars"></i>
     </button>
 
-    <!-- Sidebar restaurado como estaba antes -->
+    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="profile">
         <a href="#home-screen" id="back-to-home" class="home-profile-img" title="Volver al inicio"></a>
@@ -62,7 +71,7 @@
             <i class="fa-solid fa-microchip icon"></i><span>Proyectos</span>
           </a></li>
           <li><a href="#experience" class="nav-link interactive-element">
-            <i class="fa-solid fa-briefcase icon"></i><span>Experiencias</span>
+            <i class="fa-solid fa-camera-retro icon"></i><span>Experiencias</span>
           </a></li>
           <li><a href="#contact" class="nav-link interactive-element">
             <i class="fa-solid fa-phone icon"></i><span>Contacto</span>
@@ -81,8 +90,14 @@
       <section id="about" class="content-section centered-content">
         <h2>Acerca de Mí</h2>
         <p>
-          ¡Hola! Soy un apasionado desarrollador y entusiasta de la robótica y la electrónica. Me encanta crear soluciones innovadoras que combinan hardware y software. En este espacio, comparto algunos de los proyectos en los que he trabajado y las experiencias que he acumulado.
+          ¡Hola! Soy Eduardo, estudiante de Tecnologías de la Información y Comunicaciones en el ITSOEH, desarrollador y entusiasta de la robótica y la electrónica. Me apasiona crear soluciones innovadoras que integran hardware y software. En este espacio comparto algunos de los proyectos en los que he trabajado y las experiencias que he acumulado a lo largo de mi formación.
         </p>
+        <div class="image-container">
+  <img src="img/acercademi.jpg" alt="Imagen reciente acerca de mi vida" class="about-image">
+  <div class="fade-top"></div>
+  <div class="fade-bottom"></div>
+</div>
+
       </section>
 
       <section id="projects" class="content-section">
@@ -123,7 +138,7 @@
               </div>
               <div class="card-back">
                 <h3>Robot Sumo</h3>
-                <p>Robot autónomo diseñado para competencias de sumo, con sensores infrarrojos para detectar al oponente y el borde del dohyo.</p>
+                <p>Robot autónomo diseñado para competencias de sumo.</p>
                 <span class="category-tag">Robótica</span>
               </div>
             </div>
@@ -160,20 +175,46 @@
         </div>
       </section>
 
-      <section id="experience" class="content-section centered-content">
-        <h2>Experiencias</h2>
-        <p>Aquí puedes listar tus experiencias laborales, competencias o eventos relevantes. Por ejemplo:</p>
-        <ul class="experience-list">
-          <li>
-            <h4>Competencia de Robótica VEX</h4>
-            <span>2023 - Participante y programador principal.</span>
-          </li>
-          <li>
-            <h4>Hackathon Local</h4>
-            <span>2024 - Ganador del premio a la innovación.</span>
-          </li>
-        </ul>
-      </section>
+<section id="experience" class="content-section centered-content">
+  <h2>Experiencias</h2>
+  <p>Aquí enlisto mis experiencias laborales, competencias o eventos relevantes.</p>
+  <ul class="experience-list">
+    <li class="experience-item">
+      <button class="experience-toggle">
+        <div>
+          <h4>Competencia de Robótica VEX</h4>
+          <span>2024 - Participante como diseñador y driver.</span>
+        </div>
+        <i class="fa-solid fa-chevron-down toggle-icon"></i>
+      </button>
+      <div class="experience-details">
+        <p>Participé como programador principal en la competencia VEX. Aprendí mucho sobre trabajo en equipo y programación con sensores.</p>
+        <div class="experience-gallery">
+          <img src="https://i.pinimg.com/474x/a7/de/c4/a7dec46aca07b2e12e2e361cfa9312ec.jpg" alt="Foto 1 VEX">
+          <img src="https://i.pinimg.com/474x/a7/de/c4/a7dec46aca07b2e12e2e361cfa9312ec.jpg" alt="Foto 2 VEX">
+        </div>
+      </div>
+    </li>
+
+    <li class="experience-item">
+      <button class="experience-toggle">
+        <div>
+          <h4>Hackathon Local</h4>
+          <span>2024 - Ganador del premio a la innovación.</span>
+        </div>
+        <i class="fa-solid fa-chevron-down toggle-icon"></i>
+      </button>
+      <div class="experience-details">
+        <p>En este evento creamos una solución de IoT para monitorear plantas. Fue muy emocionante recibir reconocimiento.</p>
+        <div class="experience-gallery">
+          <img src="https://i.pinimg.com/474x/a7/de/c4/a7dec46aca07b2e12e2e361cfa9312ec.jpg" alt="Hackathon 1">
+          <img src="https://i.pinimg.com/474x/a7/de/c4/a7dec46aca07b2e12e2e361cfa9312ec.jpg" alt="Hackathon 2">
+        </div>
+      </div>
+    </li>
+  </ul>
+</section>
+
 
       <section id="contact" class="content-section centered-content">
         <h2>Contacto</h2>
@@ -181,17 +222,25 @@
           ¿Interesado en colaborar o tienes alguna pregunta? ¡Contáctame!
         </p>
         <div class="contact-links">
-          <a href="#" class="interactive-element"><i class="fa-brands fa-github icon"></i> GitHub</a>
-          <a href="#" class="interactive-element"><i class="fa-brands fa-linkedin icon"></i> LinkedIn</a>
-          <a href="#" class="interactive-element"><i class="fa-solid fa-envelope icon"></i> Email</a>
+          <a href="https://github.com/EDUARDOVAZQUE" class="interactive-element"><i class="fa-brands fa-github icon"></i> GitHub</a>
+          <a href="https://www.linkedin.com/in/jesus-eduardo-vazquez-martinez-975670376/" class="interactive-element"><i class="fa-brands fa-linkedin icon"></i> LinkedIn</a>
+          <a href="mailto:22011935@itsoeh.edu.mx" class="interactive-element"><i class="fa-solid fa-envelope icon"></i> Email</a>
+          <a href="https://www.youtube.com/@Measly" class="interactive-element"><i class="fa-brands fa-youtube icon"></i> Youtube</a>
         </div>
       </section>
 
-      <!-- AGREGADO: Sección del juego secreto con iframe -->
       <section id="secret-game" class="content-section centered-content" style="display: none;">
         <h2>Juego Secreto</h2>
         <p>¡Felicidades! Has desbloqueado el juego secreto.</p>
-        
+        <div class="game-stats">
+          <div class="stat-item">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Victorias: <span id="game-total-wins">0</span></span>
+          </div>
+          <div class="stat-item">
+            <i class="fa-solid fa-star"></i>
+            <span>Junimos Activos: <span id="active-junimos">0</span></span>
+          </div>        
         <div id="game-container" class="game-container">
           <div class="game-controls">
             <button id="fullscreen-game-btn" class="fullscreen-btn">
