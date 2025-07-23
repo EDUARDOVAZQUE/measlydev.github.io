@@ -11,25 +11,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const projectCards = document.querySelectorAll(".projects-grid .project-card")
   const socialLinks = document.querySelectorAll(".social-links a")
   const homeProfileImg = document.querySelector(".home-profile-img")
-  const buttons = document.querySelectorAll('.experience-toggle');
+  const buttons = document.querySelectorAll(".experience-toggle")
 
-  buttons.forEach(button => {
-    button.addEventListener('click', () => {
-      const details = button.nextElementSibling;
-      const isVisible = details.classList.contains('visible');
-
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const details = button.nextElementSibling
+      const isVisible = details.classList.contains("visible")
       // Cerrar todos
-      document.querySelectorAll('.experience-details').forEach(d => d.classList.remove('visible'));
-      document.querySelectorAll('.experience-toggle').forEach(b => b.classList.remove('open'));
-
+      document.querySelectorAll(".experience-details").forEach((d) => d.classList.remove("visible"))
+      document.querySelectorAll(".experience-toggle").forEach((b) => b.classList.remove("open"))
       // Abrir solo si no estaba visible
       if (!isVisible) {
-        details.classList.add('visible');
-        button.classList.add('open');
+        details.classList.add("visible")
+        button.classList.add("open")
       }
-    });
-  });
-
+    })
+  })
 
   // Variables para el juego secreto
   const secretSequence = ["ArrowDown", "ArrowUp", "ArrowLeft", "ArrowRight", "ArrowRight", "ArrowRight"]
@@ -55,12 +52,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- SISTEMA DE PUNTAJE Y JUNIMOS ---
   const SCORE_STORAGE_KEY = "measly543_total_score"
   const WINS_STORAGE_KEY = "measly543_total_wins"
-  const JUNIMOS_THRESHOLD = 30
-  const MAX_JUNIMOS = 15
-
   let totalScore = Number.parseInt(localStorage.getItem(SCORE_STORAGE_KEY) || "0")
   let totalWins = Number.parseInt(localStorage.getItem(WINS_STORAGE_KEY) || "0")
-  let activeJunimos = []
 
   // Colores para los Junimos (mismo sistema que los slimes)
   const junimoColors = [
@@ -77,14 +70,12 @@ document.addEventListener("DOMContentLoaded", () => {
     totalScore = newScore
     localStorage.setItem(SCORE_STORAGE_KEY, totalScore.toString())
     updateScoreDisplay()
-    checkJunimoSpawn()
   }
 
   function incrementWins() {
     totalWins++
     localStorage.setItem(WINS_STORAGE_KEY, totalWins.toString())
     updateScoreDisplay()
-    spawnJunimosForWin()
   }
 
   function resetTotalScore() {
@@ -93,99 +84,14 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(SCORE_STORAGE_KEY, "0")
     localStorage.setItem(WINS_STORAGE_KEY, "0")
     updateScoreDisplay()
-    removeAllJunimos()
   }
 
   function updateScoreDisplay() {
     const totalScoreElement = document.getElementById("total-score-value")
     const gameScoreElement = document.getElementById("game-total-score")
-    const activeJunimosElement = document.getElementById("active-junimos")
-
     if (totalScoreElement) totalScoreElement.textContent = totalScore
     if (gameScoreElement) gameScoreElement.textContent = totalScore
-    if (activeJunimosElement) activeJunimosElement.textContent = activeJunimos.length
-
     updateGameStats()
-  }
-
-  // --- SISTEMA DE JUNIMOS ---
-  function checkJunimoSpawn() {
-    if ((totalScore >= JUNIMOS_THRESHOLD || totalWins > 0) && activeJunimos.length === 0) {
-      spawnJunimo()
-    }
-  }
-
-  function spawnJunimosForWin() {
-    // Generar Junimos basándose en victorias, no en puntaje actual
-    if (totalWins > 0 && activeJunimos.length < MAX_JUNIMOS) {
-      const junimosToSpawn = Math.min(2, MAX_JUNIMOS - activeJunimos.length)
-      for (let i = 0; i < junimosToSpawn; i++) {
-        setTimeout(() => spawnJunimo(), i * 1000) // Spawn con delay
-      }
-    }
-  }
-
-  function spawnJunimo() {
-    if (activeJunimos.length >= MAX_JUNIMOS) return
-
-    const junimosContainer = document.getElementById("junimos-container")
-    const junimo = document.createElement("div")
-    junimo.classList.add("floating-junimo")
-
-    // Asignar color aleatorio
-    const colorClass = junimoColors[Math.floor(Math.random() * junimoColors.length)]
-    junimo.classList.add(colorClass)
-
-    // Posición inicial aleatoria en el lado izquierdo
-    const startY = Math.random() * (window.innerHeight - 100) + 50
-    junimo.style.top = startY + "px"
-    junimo.style.left = "-60px"
-
-    // Duración aleatoria de la animación
-    const duration = Math.random() * 4 + 6 // Entre 6 y 10 segundos
-    junimo.style.animationDuration = `${duration}s, 1s`
-
-    // Event listener para eliminar al hacer click
-    junimo.addEventListener("click", () => {
-      removeJunimo(junimo)
-    })
-
-    junimosContainer.appendChild(junimo)
-    activeJunimos.push(junimo)
-
-    // Auto-remover cuando termine la animación
-    setTimeout(() => {
-      if (activeJunimos.includes(junimo)) {
-        removeJunimo(junimo)
-      }
-    }, duration * 1000)
-
-    updateScoreDisplay()
-  }
-
-  function removeJunimo(junimo) {
-    const index = activeJunimos.indexOf(junimo)
-    if (index > -1) {
-      activeJunimos.splice(index, 1)
-      junimo.style.transform = "scale(0)"
-      junimo.style.opacity = "0"
-      setTimeout(() => {
-        if (junimo.parentNode) {
-          junimo.parentNode.removeChild(junimo)
-        }
-      }, 200)
-      updateScoreDisplay()
-    }
-  }
-
-  function removeAllJunimos() {
-    activeJunimos.forEach((junimo) => {
-      if (junimo.parentNode) {
-        junimo.parentNode.removeChild(junimo)
-      }
-    })
-    activeJunimos = []
-    updateScoreDisplay()
   }
 
   // --- COMUNICACIÓN CON EL JUEGO ---
@@ -263,19 +169,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const secretGame = document.getElementById("secret-game")
     const secretNavItem = document.getElementById("secret-nav-item")
     const homeSecretButton = document.getElementById("home-secret-button")
-
     if (secretGame && secretNavItem) {
       secretGame.style.display = "block"
       secretNavItem.style.display = "block"
       if (homeSecretButton) {
         homeSecretButton.style.display = "flex"
       }
-
       setTimeout(() => {
         setupSmoothScroll()
         setupGameFullscreen()
       }, 100)
-
       alert("¡Juego secreto desbloqueado!")
     }
   }
@@ -313,7 +216,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const fullscreenBtn = document.getElementById("fullscreen-game-btn")
     const resetScoreBtn = document.getElementById("reset-score-btn")
     const gameContainer = document.getElementById("game-container")
-
     if (fullscreenBtn && gameContainer) {
       fullscreenBtn.addEventListener("click", (e) => {
         e.preventDefault()
@@ -325,7 +227,6 @@ document.addEventListener("DOMContentLoaded", () => {
           gameContainer.msRequestFullscreen()
         }
       })
-
       const fullscreenEvents = [
         "fullscreenchange",
         "webkitfullscreenchange",
@@ -350,7 +251,6 @@ document.addEventListener("DOMContentLoaded", () => {
         })
       })
     }
-
     // Botón de reiniciar puntaje
     if (resetScoreBtn) {
       resetScoreBtn.addEventListener("click", (e) => {
@@ -435,8 +335,6 @@ document.addEventListener("DOMContentLoaded", () => {
   setupSmoothScroll()
   setupGameFullscreen()
   updateScoreDisplay()
-  checkJunimoSpawn()
-
   document.body.style.overflowX = "hidden"
   document.documentElement.style.overflowX = "hidden"
 
@@ -448,7 +346,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateGameStats() {
     const gameWinsElement = document.getElementById("game-total-wins")
     if (gameWinsElement) gameWinsElement.textContent = totalWins
-
     // Mostrar el indicador de puntaje total solo si hay victorias
     const totalScoreDisplay = document.getElementById("total-score-display")
     if (totalScoreDisplay) {

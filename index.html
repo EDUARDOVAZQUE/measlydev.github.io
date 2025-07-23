@@ -8,21 +8,12 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 </head>
 <body>
-  <!-- Contenedor para Junimos flotantes -->
-  <div id="junimos-container"></div>
-
   <!-- Splashscreen -->
   <div id="home-screen" class="home-screen">
     <div id="stars"></div>
     <div class="home-content">
       <div class="home-profile-img animated-element"></div>
       <h1 class="home-username animated-element">Measly543</h1>
-      
-      <!-- Indicador de puntaje total -->
-      <div id="total-score-display" class="total-score-display animated-element">
-        <i class="fa-solid fa-trophy"></i>
-        <span>Puntaje Total: <span id="total-score-value">0</span></span>
-      </div>
       
       <nav class="home-nav">
         <a href="#about" class="home-nav-button interactive-element animated-element">
@@ -236,23 +227,24 @@
           <div class="stat-item">
             <i class="fa-solid fa-trophy"></i>
             <span>Victorias: <span id="game-total-wins">0</span></span>
+              <!-- Botón para ocultar/mostrar controles -->
+
           </div>
-          <div class="stat-item">
-            <i class="fa-solid fa-star"></i>
-            <span>Junimos Activos: <span id="active-junimos">0</span></span>
-          </div>        
         <div id="game-container" class="game-container">
           <div class="game-controls">
             <button id="fullscreen-game-btn" class="fullscreen-btn">
               <i class="fa-solid fa-expand"></i> Pantalla Completa
             </button>
           </div>
+            <!-- Botón para ocultar/mostrar controles -->
+
           <iframe 
             src="sprite.html"
             class="game-iframe"
             title="Juego Secreto"
             allowfullscreen>
           </iframe>
+            
         </div>
       </section>
     </main>

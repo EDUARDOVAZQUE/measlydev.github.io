@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Junimo Recolector</title>
+  <title>Junimo Recolector - Controles Mejorados</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap" rel="stylesheet">
@@ -294,51 +294,162 @@
       line-height: 1.4;
     }
 
-    /* --- Controles para Móvil --- */
+    /* --- CONTROLES MÓVILES MEJORADOS --- */
     #mobile-controls {
       display: none;
       position: fixed;
       bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
+      right: 0;
       z-index: 200;
-      opacity: 0.8;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      opacity: 1;
+      transform: translateY(0);
     }
 
-    #mobile-controls .d-pad {
-      display: grid;
-      grid-template-columns: repeat(3, 65px);
-      grid-template-rows: repeat(3, 65px);
+    #mobile-controls.hidden {
+      opacity: 0 !important;
+      transform: translateY(100px) !important;
+      pointer-events: none !important;
+    }
+
+    /* Switch de control */
+    #control-switch {
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #a8a8a8;
+      border-radius: 20px;
+      padding: 8px 15px;
+      color: white;
+      font-size: 0.9em;
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
       gap: 10px;
     }
 
-    #mobile-controls .d-pad-button {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(200, 200, 200, 0.6));
+    #control-toggle {
+      position: relative;
+      width: 50px;
+      height: 25px;
+      background: #333;
       border-radius: 15px;
-      border: 2px solid white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #control-toggle.active {
+      background: #90EE90;
+    }
+
+    #control-toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 21px;
+      height: 21px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.3s;
+    }
+
+    #control-toggle.active::after {
+      transform: translateX(25px);
+    }
+
+    /* D-pad mejorado */
+    #dpad-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 0 30px;
+      pointer-events: auto;
+    }
+
+    .dpad-section {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .dpad-section.horizontal {
+      flex-direction: row;
+      gap: 20px;
+    }
+
+    .dpad-button {
+      width: 90px;
+      height: 90px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(200, 200, 200, 0.7));
+      border-radius: 50%;
+      border: 3px solid white;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 32px;
+      font-size: 28px;
       color: white;
       user-select: none;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      transition: all 0.1s;
     }
 
-    #up {
-      grid-area: 1 / 2 / 2 / 3;
+    .dpad-button:active {
+      transform: scale(0.95);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
-    #left {
-      grid-area: 2 / 1 / 3 / 2;
+    /* Joystick */
+    #joystick-controls {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      pointer-events: auto;
     }
 
-    #right {
-      grid-area: 2 / 3 / 3 / 4;
+    #joystick-canvas {
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      touch-action: none;
     }
 
-    #down {
-      grid-area: 3 / 2 / 4 / 3;
+    /* Botón para ocultar/mostrar controles */
+    #toggle-controls-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #a8a8a8;
+      border-radius: 50%;
+      color: white;
+      font-size: 20px;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 201;
+      pointer-events: auto;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    #toggle-controls-btn:active {
+      transform: scale(0.95);
+      background: rgba(0, 0, 0, 0.9);
+    }
+
+    #toggle-controls-btn.controls-hidden {
+      background: rgba(144, 238, 144, 0.8) !important;
+      border-color: #90EE90 !important;
     }
 
     /* --- Pantalla Final --- */
@@ -398,10 +509,9 @@
         width: 0%;
         height: 100%;
       }
-    }
 
-    /* Reglas para Móvil (pantallas pequeñas) */
-    @media (max-width: 768px),
+    }
+      @media (max-width: 768px),
     (max-height: 600px) {
       body {
         padding: 0;
@@ -445,6 +555,40 @@
         padding: 12px;
       }
     }
+      /* EN PC: Mostrar controles móviles pero permitir ocultarlos */
+      /*#mobile-controls {
+        display: block !important;
+      }
+
+      /* EN PC: Mostrar botón de toggle */
+      /*#toggle-controls-btn {
+        display: flex !important;
+      }
+    }
+
+    /* Reglas para Móvil (pantallas pequeñas) */
+    /*
+
+      /* EN MÓVIL: Mostrar controles móviles siempre */
+      /*#mobile-controls {
+        display: block !important;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+        pointer-events: auto !important;
+      }
+
+      /* EN MÓVIL: Ocultar botón de toggle */
+      /*#toggle-controls-btn {
+        display: none !important;
+      }
+
+      /* EN MÓVIL: Asegurar que los controles nunca se oculten */
+      /*#mobile-controls.hidden {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+        pointer-events: auto !important;
+      }
+    }*/
   </style>
 </head>
 
@@ -454,10 +598,10 @@
       <div id="junimo-hut"></div>
       <div id="fruit"></div>
       <div class="sprite" id="sprite"></div>
-
       <div id="instructions">
         <h3>🎮 Instrucciones</h3>
         <p>🏃 Usa WASD o las flechas para moverte</p>
+        <p>📱 En móvil: usa los controles táctiles</p>
         <p>🍓 Recoge las frutas y llévalas a la casa</p>
         <p>👾 ¡Evita a los slimes!</p>
         <p>🎯 Objetivo: ¡Completa los 6 niveles!</p>
@@ -494,13 +638,36 @@
       de Nuevo</button>
   </div>
 
+  <!-- Controles Móviles Mejorados -->
   <div id="mobile-controls">
-    <div class="d-pad">
-      <div class="d-pad-button" id="up">▲</div>
-      <div class="d-pad-button" id="left">◀</div>
-      <div class="d-pad-button" id="right">▶</div>
-      <div class="d-pad-button" id="down">▼</div>
+    <!-- Switch de control -->
+    <div id="control-switch">
+      <span>D-pad</span>
+      <div id="control-toggle"></div>
+      <span>Joystick</span>
     </div>
+
+    <!-- D-pad mejorado -->
+    <div id="dpad-controls">
+      <div class="dpad-section">
+        <div class="dpad-button" id="up">▲</div>
+        <div class="dpad-button" id="down">▼</div>
+      </div>
+      <div class="dpad-section horizontal">
+        <div class="dpad-button" id="left">◀</div>
+        <div class="dpad-button" id="right">▶</div>
+      </div>
+    </div>
+
+    <!-- Joystick -->
+    <div id="joystick-controls">
+      <canvas id="joystick-canvas" width="200" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- Botón para ocultar/mostrar controles -->
+  <div id="toggle-controls-btn" title="Ocultar/Mostrar controles">
+    👁️
   </div>
 
   <script>
@@ -524,7 +691,6 @@
     const WORLD_BORDER_THICKNESS = 20;
     const PLAYABLE_WIDTH = WORLD_WIDTH - (WORLD_BORDER_THICKNESS * 2);
     const PLAYABLE_HEIGHT = WORLD_HEIGHT - (WORLD_BORDER_THICKNESS * 2);
-
     let currentViewportWidth = 0;
     let currentViewportHeight = 0;
     let scaleRatio = 1;
@@ -550,7 +716,7 @@
     const baseEnemySpeed = 1.5;
     const speedIncreasePerLevel = 0.15;
 
-    // Colores para los slimes (filtros hue-rotate) - CORREGIDO
+    // Colores para los slimes (filtros hue-rotate)
     const slimeColors = [
       'hue-rotate(0deg) saturate(2) drop-shadow(0 0 8px rgba(255, 100, 100, 0.8)) drop-shadow(0 0 15px rgba(255, 100, 100, 0.4))',
       'hue-rotate(60deg) saturate(2) drop-shadow(0 0 8px rgba(100, 255, 100, 0.8)) drop-shadow(0 0 15px rgba(100, 255, 100, 0.4))',
@@ -577,6 +743,22 @@
 
     const keysPressed = {};
     let lastDirection = 'down';
+
+    // --- Función para detectar si es dispositivo táctil ---
+    function isTouchDevice() {
+      return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    }
+
+    // --- Variables para controles móviles ---
+    let isDpadMode = true;
+    let joystickActive = false;
+    let joystickX = 0;
+    let joystickY = 0;
+    // Eliminar esta línea:
+    // let controlsVisible = true;
+
+    // Eliminar completamente esta función ya que no se usa
+    // function toggleControlsVisibility() { ... }
 
     // --- Comunicación con la página principal ---
     function updateParentScore() {
@@ -611,7 +793,6 @@
       sprite.style.top = `${playerY}px`;
 
       addSlime();
-
       spawnFruit();
       updateScalingAndCamera();
       updateUI();
@@ -637,11 +818,11 @@
 
       cameraX = Math.max(WORLD_BORDER_THICKNESS, Math.min(cameraX, WORLD_WIDTH - (currentViewportWidth / scaleRatio) - WORLD_BORDER_THICKNESS));
       cameraY = Math.max(WORLD_BORDER_THICKNESS, Math.min(cameraY, WORLD_HEIGHT - (currentViewportHeight / scaleRatio) - WORLD_BORDER_THICKNESS));
+
       gameWorld.style.transform = `scale(${scaleRatio}) translate(${-cameraX}px, ${-cameraY}px)`;
     }
 
     function checkCollision(obj1X, obj1Y, obj1W, obj1H, obj2X, obj2Y, obj2W, obj2H) {
-      // Reducir en 20% el tamaño del segundo objeto (slime) para colisión más precisa
       const scaleFactor = 0.1;
       const reducedW = obj2W * scaleFactor;
       const reducedH = obj2H * scaleFactor;
@@ -662,7 +843,6 @@
         obj1Bottom > obj2Top;
     }
 
-    // --- Función para agregar un nuevo slime ---
     function addSlime() {
       if (slimes.length >= maxSlimes) return;
 
@@ -670,13 +850,13 @@
       newSlime.classList.add('enemy-slime');
       gameWorld.appendChild(newSlime);
 
-      // Asignar color basado en el índice del slime - CORREGIDO
       const colorIndex = slimes.length % slimeColors.length;
       newSlime.style.filter = slimeColors[colorIndex];
 
       let slimeX, slimeY;
       let validPosition = false;
       const minDistance = 200;
+
       const preferredSectionIndex = Math.floor(Math.random() * patrolSections.length);
       const preferredSection = patrolSections[preferredSectionIndex];
 
@@ -714,7 +894,6 @@
       });
     }
 
-    // --- Mover Slimes con comportamiento individual ---
     function moveSlimesTowardsPlayer() {
       if (!gameStarted) return;
 
@@ -728,7 +907,6 @@
 
         const distToPlayer = Math.sqrt(Math.pow(playerX - slime.x, 2) + Math.pow(playerY - slime.y, 2));
 
-        // Lógica de transición entre modos
         if (slime.movementMode === 'chasing') {
           slime.chaseCooldown--;
           if (slime.chaseCooldown <= 0 || distToPlayer > slime.detectionRadius * 1.5) {
@@ -754,7 +932,6 @@
           }
         }
 
-        // Mover hacia el target
         const dx = slime.targetX - slime.x;
         const dy = slime.targetY - slime.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
@@ -771,6 +948,7 @@
           slime.element.style.top = `${slime.y}px`;
 
           slime.element.classList.add('enemy-moving');
+
           if (slime.x < prevSlimeX) {
             slime.element.classList.add('moving-left');
             slime.element.classList.remove('moving-right');
@@ -782,7 +960,6 @@
           slime.element.classList.remove('enemy-moving');
         }
 
-        // Colisión con el jugador
         if (checkCollision(playerX, playerY, 64, 64, slime.x, slime.y, 64, 64)) {
           resetGame();
           return;
@@ -790,7 +967,6 @@
       });
     }
 
-    // --- Actualizar toda la UI ---
     function updateUI() {
       scoreValue.textContent = score;
       levelValue.textContent = level;
@@ -815,6 +991,7 @@
 
       const hutWidth = parseFloat(getComputedStyle(hut).width);
       const hutHeight = parseFloat(getComputedStyle(hut).height);
+
       hut.style.left = `${WORLD_WIDTH / 2}px`;
       hut.style.top = `${WORLD_HEIGHT / 2}px`;
 
@@ -833,6 +1010,46 @@
         updateScalingAndCamera();
         updateUI();
       }, 500);
+    }
+
+    // --- Función para procesar movimiento desde joystick ---
+    function processJoystickMovement(relativeX, relativeY, speed) {
+      // Convertir coordenadas del joystick a direcciones
+      const threshold = 20; // Umbral mínimo para detectar movimiento
+
+      // Limpiar todas las teclas
+      keysPressed.w = false;
+      keysPressed.s = false;
+      keysPressed.a = false;
+      keysPressed.d = false;
+
+      if (speed > threshold) {
+        // Determinar direcciones basadas en las coordenadas relativas
+        if (Math.abs(relativeX) > Math.abs(relativeY)) {
+          // Movimiento horizontal predominante
+          if (relativeX > 0) {
+            keysPressed.d = true; // Derecha
+          } else {
+            keysPressed.a = true; // Izquierda
+          }
+        } else {
+          // Movimiento vertical predominante
+          if (relativeY > 0) {
+            keysPressed.s = true; // Abajo
+          } else {
+            keysPressed.w = true; // Arriba
+          }
+        }
+
+        // Permitir movimiento diagonal si ambas coordenadas son significativas
+        const diagonalThreshold = threshold * 0.7;
+        if (Math.abs(relativeX) > diagonalThreshold && Math.abs(relativeY) > diagonalThreshold) {
+          if (relativeX > 0) keysPressed.d = true;
+          else keysPressed.a = true;
+          if (relativeY > 0) keysPressed.s = true;
+          else keysPressed.w = true;
+        }
+      }
     }
 
     function gameLoop() {
@@ -882,8 +1099,12 @@
         sprite.classList.add('walking');
         sprite.classList.remove('walking-up', 'walking-down', 'walking-right');
         switch (lastDirection) {
-          case 'up': sprite.classList.add('walking-up'); break;
-          case 'down': sprite.classList.add('walking-down'); break;
+          case 'up':
+            sprite.classList.add('walking-up');
+            break;
+          case 'down':
+            sprite.classList.add('walking-down');
+            break;
           case 'left':
             sprite.classList.add('walking-right');
             sprite.style.transform = 'translate(-50%, -50%) scaleX(-1)';
@@ -916,14 +1137,14 @@
             level++;
             fruitsCollectedInLevel = 0;
             addSlime();
-            notifyGameWin(); // Notificar victoria de nivel
+            notifyGameWin();
           }
 
           updateUI();
 
           if (level >= maxSlimes && fruitsCollectedInLevel >= fruitToNextLevel) {
             gameOver = true;
-            notifyGameWin(); // Notificar victoria final
+            notifyGameWin();
             gameOverScreen.classList.remove('hidden');
           } else {
             setTimeout(spawnFruit, 500);
@@ -960,32 +1181,246 @@
       resetGame();
     });
 
-    // --- Controles móviles ---
+    // --- Función para detectar si es dispositivo táctil ---
+    function isTouchDevice() {
+      return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    }
+
+    // --- Configuración de controles móviles ---
     function setupMobileControls() {
-      if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-        document.getElementById('mobile-controls').style.display = 'block';
+      console.log('Setting up mobile controls...');
+      console.log('Is touch device:', isTouchDevice());
 
-        const buttons = document.querySelectorAll('.d-pad-button');
-        const keyMap = { up: 'w', down: 's', left: 'a', right: 'd' };
+      const mobileControls = document.getElementById('mobile-controls');
+      const toggleBtn = document.getElementById('toggle-controls-btn');
 
-        buttons.forEach(button => {
-          const key = keyMap[button.id];
-          button.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            keysPressed[key] = true;
-          }, { passive: false });
-          button.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            keysPressed[key] = false;
-          });
+      if (isTouchDevice()) {
+        // DISPOSITIVO TÁCTIL (móvil/tablet) - Mostrar controles siempre
+        console.log('Touch device detected - showing mobile controls');
+
+        if (mobileControls) {
+          mobileControls.style.display = 'block';
+          mobileControls.classList.remove('hidden');
+        }
+
+        // Ocultar botón de toggle (no se necesita)
+        if (toggleBtn) {
+          toggleBtn.style.display = 'none';
+        }
+
+        // Configurar controles táctiles
+        setupControlSwitching();
+        setupDpad();
+        setupJoystick();
+
+      } else {
+        // DISPOSITIVO NO TÁCTIL (PC) - Ocultar todo, usar solo teclado
+        console.log('Non-touch device detected - hiding mobile controls, using keyboard only');
+
+        if (mobileControls) {
+          mobileControls.style.display = 'none';
+        }
+
+        if (toggleBtn) {
+          toggleBtn.style.display = 'none';
+        }
+      }
+    }
+
+    // Función separada para configurar el switch entre D-pad y Joystick
+    function setupControlSwitching() {
+      const controlToggle = document.getElementById('control-toggle');
+      const dpadControls = document.getElementById('dpad-controls');
+      const joystickControls = document.getElementById('joystick-controls');
+
+      if (controlToggle) {
+        controlToggle.addEventListener('click', () => {
+          isDpadMode = !isDpadMode;
+          controlToggle.classList.toggle('active', !isDpadMode);
+
+          if (isDpadMode) {
+            dpadControls.style.display = 'flex';
+            joystickControls.style.display = 'none';
+          } else {
+            dpadControls.style.display = 'none';
+            joystickControls.style.display = 'flex';
+            setupJoystick();
+          }
         });
       }
     }
 
+    function setupDpad() {
+      const buttons = document.querySelectorAll('.dpad-button');
+      const keyMap = {
+        up: 'w',
+        down: 's',
+        left: 'a',
+        right: 'd'
+      };
+
+      buttons.forEach(button => {
+        const key = keyMap[button.id];
+
+        button.addEventListener('touchstart', (e) => {
+          e.preventDefault();
+          keysPressed[key] = true;
+        }, {
+          passive: false
+        });
+
+        button.addEventListener('touchend', (e) => {
+          e.preventDefault();
+          keysPressed[key] = false;
+        });
+
+        button.addEventListener('touchcancel', (e) => {
+          e.preventDefault();
+          keysPressed[key] = false;
+        });
+      });
+    }
+
+    function setupJoystick() {
+      const canvas = document.getElementById('joystick-canvas');
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d');
+
+      // Ajustar tamaño a 200px
+      let width = 200;
+      let height = 200;
+      let radius = 70; // Reducido proporcionalmente de 100 a 70
+      let x_orig = width / 2; // 100
+      let y_orig = height / 2; // 100
+
+      canvas.width = width;
+      canvas.height = height;
+
+      function drawBackground() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.beginPath();
+        ctx.arc(x_orig, y_orig, radius + 15, 0, Math.PI * 2, true); // Reducido de +20 a +15
+        ctx.fillStyle = 'rgba(200, 200, 200, 0.3)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.lineWidth = 2; // Reducido de 3 a 2
+        ctx.stroke();
+      }
+
+      function drawJoystick(x, y) {
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 0.5, 0, Math.PI * 2, true); // Reducido de 0.6 a 0.5
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(200, 200, 200, 0.9)';
+        ctx.lineWidth = 3; // Reducido de 4 a 3
+        ctx.stroke();
+      }
+
+      let coord = {
+        x: 0,
+        y: 0
+      };
+      let paint = false;
+
+      function getPosition(event) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+        const clientY = event.clientY || (event.touches && event.touches[0].clientY);
+        coord.x = clientX - rect.left;
+        coord.y = clientY - rect.top;
+      }
+
+      function isInCircle() {
+        const current_radius = Math.sqrt(Math.pow(coord.x - x_orig, 2) + Math.pow(coord.y - y_orig, 2));
+        return radius >= current_radius;
+      }
+
+      function startDrawing(event) {
+        event.preventDefault();
+        paint = true;
+        joystickActive = true;
+        getPosition(event);
+        if (isInCircle()) {
+          drawBackground();
+          drawJoystick(coord.x, coord.y);
+        }
+      }
+
+      function stopDrawing(event) {
+        event.preventDefault();
+        paint = false;
+        joystickActive = false;
+        drawBackground();
+        drawJoystick(x_orig, y_orig);
+
+        // Limpiar todas las teclas cuando se suelta el joystick
+        keysPressed.w = false;
+        keysPressed.s = false;
+        keysPressed.a = false;
+        keysPressed.d = false;
+      }
+
+      function draw(event) {
+        if (paint) {
+          event.preventDefault();
+          getPosition(event);
+
+          let x, y;
+          if (isInCircle()) {
+            x = coord.x;
+            y = coord.y;
+          } else {
+            const angle = Math.atan2((coord.y - y_orig), (coord.x - x_orig));
+            x = radius * Math.cos(angle) + x_orig;
+            y = radius * Math.sin(angle) + y_orig;
+          }
+
+          drawBackground();
+          drawJoystick(x, y);
+
+          // Calcular movimiento
+          const x_relative = Math.round(x - x_orig);
+          const y_relative = Math.round(y - y_orig);
+          const speed = Math.round(100 * Math.sqrt(Math.pow(x - x_orig, 2) + Math.pow(y - y_orig, 2)) / radius);
+
+          // Procesar movimiento
+          processJoystickMovement(x_relative, y_relative, speed);
+        }
+      }
+
+      // Event listeners para el joystick
+      canvas.addEventListener('touchstart', startDrawing, {
+        passive: false
+      });
+      canvas.addEventListener('touchend', stopDrawing, {
+        passive: false
+      });
+      canvas.addEventListener('touchcancel', stopDrawing, {
+        passive: false
+      });
+      canvas.addEventListener('touchmove', draw, {
+        passive: false
+      });
+
+      // También agregar soporte para mouse (para testing en desktop)
+      canvas.addEventListener('mousedown', startDrawing);
+      canvas.addEventListener('mouseup', stopDrawing);
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('mouseleave', stopDrawing);
+
+      // Dibujar estado inicial
+      drawBackground();
+      drawJoystick(x_orig, y_orig);
+    }
+
     // --- Inicializar juego ---
+    console.log('Initializing game...');
     initializeGame();
     setupMobileControls();
     gameLoop();
+    console.log('Game initialized');
   </script>
 </body>
 

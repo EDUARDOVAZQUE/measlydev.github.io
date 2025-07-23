@@ -44,7 +44,7 @@ body {
   position: absolute;
   width: 48px;
   height: 48px;
-  background-image: url("/placeholder.svg?height=512&width=512");
+  background-image: url("img/Junimo.png");
   background-size: 384px 48px;
   background-repeat: no-repeat;
   background-position-y: 0px;
@@ -937,3 +937,35 @@ body.is-hovering .icon {
   bottom: 0;
   background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
 }
+
+/* Botón para ocultar/mostrar controles */
+    #toggle-controls-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid #a8a8a8;
+      border-radius: 50%;
+      color: white;
+      font-size: 20px;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 201;
+      pointer-events: auto;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    #toggle-controls-btn:active {
+      transform: scale(0.95);
+      background: rgba(0, 0, 0, 0.9);
+    }
+
+    #toggle-controls-btn.controls-hidden {
+      background: rgba(144, 238, 144, 0.8);
+      border-color: #90EE90;
+    }
