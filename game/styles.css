@@ -1,0 +1,770 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  background: #111;
+  font-family: "Silkscreen", cursive;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+/* Nuevo contenedor principal para la UI y el juego */
+#game-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  max-width: 1100px; /* Ancho del mundo del juego */
+  max-height: 725px; /* Alto del mundo del juego */
+  box-sizing: border-box;
+  border: 3px solid #666; /* Borde principal del juego */
+  overflow: hidden; /* Para asegurar que el contenido se recorte si excede */
+}
+
+#viewport {
+  position: relative;
+  flex-grow: 1; /* Ocupa el espacio restante verticalmente */
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  /* Eliminado el borde, ahora está en #game-wrapper */
+}
+
+#game-world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1100px;
+  height: 725px;
+  overflow: hidden;
+  transform: translate(0, 0);
+  transform-origin: top left;
+  border: 2px solid #a8a8a8;
+  box-sizing: border-box;
+  background: #2a4d3a; /* Fondo verde restaurado */
+}
+
+#game-world > *:not(#instructions):not(#death-screen):not(#powerup-menu) {
+  position: absolute;
+}
+
+/* Sprites y elementos del juego */
+.sprite,
+#fruit,
+#star-fruit,
+#junimo-hut,
+.enemy-slime,
+.lightning-projectile {
+  position: absolute;
+  image-rendering: pixelated;
+  background-repeat: no-repeat;
+}
+
+/* Junimo (Personaje) */
+.sprite {
+  width: 64px;
+  height: 64px;
+  background-image: url("img/Junimo.png");
+  background-size: 512px 512px;
+  background-position-y: -64px;
+  filter: hue-rotate(1000deg) saturate(11);
+  animation: idle 1s steps(8) infinite;
+  z-index: 10;
+  transform: translate(-50%, -50%);
+  transition: filter 0.3s ease;
+}
+
+.sprite.invulnerable {
+  filter: hue-rotate(1000deg) saturate(11) brightness(1.5) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+  animation: invulnerabilityFlash 0.2s infinite alternate;
+}
+
+@keyframes invulnerabilityFlash {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.5;
+  }
+}
+
+.sprite.dying {
+  animation: deathSpin 1s ease-out forwards;
+}
+
+@keyframes deathSpin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) rotate(180deg) scale(1.2);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg) scale(0);
+    opacity: 0;
+  }
+}
+
+.walking-down {
+  background-position-y: 0px;
+}
+.walking-right {
+  background-position-y: -128px;
+}
+.walking-up {
+  background-position-y: -256px;
+}
+
+@keyframes idle {
+  from {
+    background-position-x: 0px;
+  }
+  to {
+    background-position-x: -512px;
+  }
+}
+
+@keyframes walk {
+  from {
+    background-position-x: 0px;
+  }
+  to {
+    background-position-x: -512px;
+  }
+}
+
+.walking {
+  animation: walk 0.5s steps(8) infinite;
+}
+
+/* Enemigos Slime */
+.enemy-slime {
+  width: 60px;
+  height: 45px;
+  background-image: url("img/slime.png");
+  background-size: 250px 100px;
+  background-position-y: 0px;
+  animation: slimeIdle 1.2s steps(4) infinite;
+  z-index: 8;
+  transform: translate(-50%, -50%);
+  transition: filter 0.2s ease-out;
+}
+
+.enemy-slime.normal {
+  filter: drop-shadow(0 0 3px rgba(100, 255, 100, 0.8));
+}
+
+.enemy-slime.green {
+  filter: hue-rotate(120deg) saturate(2) drop-shadow(0 0 5px rgba(0, 255, 0, 0.8));
+}
+
+.enemy-slime.red {
+  filter: hue-rotate(0deg) saturate(2) drop-shadow(0 0 5px rgba(255, 0, 0, 0.8));
+}
+
+.enemy-slime.spawning {
+  animation: slimeSpawn 1s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes slimeSpawn {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    filter: brightness(2) drop-shadow(0 0 20px rgba(255, 255, 255, 1));
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    filter: brightness(1.5) drop-shadow(0 0 15px rgba(255, 255, 255, 0.8));
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.enemy-slime.paralyzed {
+  filter: brightness(0.5) saturate(0) drop-shadow(0 0 5px rgba(100, 100, 255, 0.8));
+  animation: paralyzedShake 0.1s infinite alternate;
+}
+
+@keyframes paralyzedShake {
+  from {
+    transform: translate(-50%, -50%) translateX(-1px);
+  }
+  to {
+    transform: translate(-50%, -50%) translateX(1px);
+  }
+}
+
+.enemy-slime.enraged {
+  filter: hue-rotate(0deg) saturate(3) brightness(1.5) drop-shadow(0 0 8px rgba(255, 0, 0, 1));
+  animation: enragedPulse 0.3s infinite alternate;
+}
+
+@keyframes enragedPulse {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
+@keyframes slimeIdle {
+  from {
+    background-position-x: 0px;
+  }
+  to {
+    background-position-x: -256px;
+  }
+}
+
+.enemy-moving {
+  animation: slimeMove 0.8s steps(4) infinite;
+}
+
+@keyframes slimeMove {
+  from {
+    background-position-x: 0px;
+  }
+  to {
+    background-position-x: -256px;
+  }
+}
+
+.enemy-slime.moving-left {
+  transform: translate(-50%, -50%) scaleX(-1);
+}
+.enemy-slime.moving-right {
+  transform: translate(-50%, -50%) scaleX(1);
+}
+
+/* Frutas */
+#fruit {
+  width: 53.2px;
+  height: 55.3px;
+  background-image: url("img/fruta.png");
+  background-size: 320px 440px;
+  background-position: -53.3px -55.3px;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  animation: fruitGlow 1.5s ease-in-out infinite alternate;
+}
+
+#star-fruit {
+  width: 53.2px;
+  height: 55.3px;
+  background-image: url("img/fruta.png");
+  background-size: 320px 440px;
+  background-position: -106.6px -55.3px;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  animation: starFruitGlow 1s ease-in-out infinite alternate;
+}
+
+@keyframes fruitGlow {
+  from {
+    filter: drop-shadow(0 0 5px rgba(255, 255, 0, 0.5));
+  }
+  to {
+    filter: drop-shadow(0 0 15px rgba(255, 255, 0, 0.9));
+  }
+}
+
+@keyframes starFruitGlow {
+  from {
+    filter: drop-shadow(0 0 8px rgba(255, 100, 255, 0.8));
+  }
+  to {
+    filter: drop-shadow(0 0 20px rgba(255, 100, 255, 1));
+  }
+}
+
+/* Casa Junimo con hitbox aumentado */
+#junimo-hut {
+  width: 95.4px;
+  height: 128px;
+  background-image: url("img/casa.png");
+  background-size: 512px 128px;
+  background-position: 0 0;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  /* Hitbox visual para debug */
+  /* border: 2px dashed rgba(0, 255, 0, 0.3); */
+}
+
+/* UI del juego */
+#unified-ui {
+  top: 100px;
+  width: 100%;
+  height: 80px; /* Altura fija para la franja superior */
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 20, 0.9));
+  /* Eliminado el borde, ahora está en #game-wrapper */
+  border-bottom: 1px solid rgba(144, 238, 144, 0.3); /* Separador visual */
+  padding: 5px 10px; /* Padding reducido */
+  color: white;
+  font-size: 0.9em; /* Tamaño de fuente compacto */
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 0 5px rgba(144, 238, 144, 0.3); /* Sombra sutil */
+  backdrop-filter: blur(5px);
+  display: flex; /* Para organizar los items de la UI */
+  justify-content: space-around; /* Espacio entre los items */
+  align-items: center; /* Centrar verticalmente los items */
+  flex-shrink: 0; /* Evita que se encoja */
+  z-index: 200; /* Asegura que esté por encima del juego */
+}
+
+.ui-item {
+  display: flex;
+  flex-direction: column; /* Apila label y value */
+  align-items: center; /* Centra el texto */
+  margin: 0 5px; /* Margen horizontal */
+  padding: 2px 0; /* Padding vertical reducido */
+  /* Eliminado border-bottom */
+}
+
+.ui-label {
+  color: #a8a8a8;
+  margin-right: 0; /* Eliminado margen derecho */
+  font-size: 0.8em; /* Más pequeño para el label */
+}
+
+.ui-value {
+  color: white;
+  font-weight: bold;
+  font-size: 1.1em; /* Más grande para el valor */
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 5px; /* Espacio reducido */
+  width: 80px; /* Ancho fijo para la barra de progreso */
+}
+
+.progress-bar {
+  flex: 1;
+  height: 10px; /* Altura reducida */
+  background: linear-gradient(90deg, #333, #555);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #90ee90; /* Borde más delgado */
+  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #90ee90, #32cd32, #90ee90);
+  width: 0%;
+  transition: width 0.3s ease-out;
+  border-radius: 8px;
+  box-shadow: 0 0 5px rgba(144, 238, 144, 0.5);
+}
+
+/* Pantallas de juego */
+#instructions,
+#death-screen,
+#powerup-menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.95);
+  color: white;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  z-index: 210;
+  font-size: 1.2em;
+  border: 3px solid #a8a8a8;
+  box-shadow: 0 0 20px rgba(144, 238, 144, 0.5);
+}
+
+#instructions h3,
+#death-screen h2,
+#powerup-menu h2 {
+  margin-bottom: 20px;
+  color: #a8a8a8;
+  text-shadow: 0 0 1px rgba(144, 238, 144, 0.8);
+}
+
+/* Pantalla de muerte */
+.death-stats {
+  margin: 20px 0;
+  text-align: left;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(144, 238, 144, 0.3);
+}
+
+.stat-label {
+  color: #a8a8a8;
+}
+
+.stat-value {
+  color: #90ee90;
+  font-weight: bold;
+}
+
+/* Menú de potenciadores */
+.powerup-options {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.powerup-option {
+  flex: 1;
+  background: linear-gradient(135deg, rgba(50, 50, 50, 0.8), rgba(70, 70, 70, 0.8));
+  border: 2px solid #666;
+  border-radius: 10px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.powerup-option:hover {
+  border-color: #90ee90;
+  box-shadow: 0 0 15px rgba(144, 238, 144, 0.5);
+  transform: translateY(-5px);
+}
+
+.powerup-rarity {
+  font-size: 0.9em;
+  font-weight: bold;
+  margin-bottom: 10px;
+  padding: 5px 10px;
+  border-radius: 15px;
+  display: inline-block;
+}
+
+.powerup-rarity.common {
+  background: rgba(150, 150, 150, 0.3);
+  color: #ccc;
+}
+
+.powerup-rarity.rare {
+  background: rgba(100, 150, 255, 0.3);
+  color: #64a6ff;
+}
+
+.powerup-rarity.epic {
+  background: rgba(200, 100, 255, 0.3);
+  color: #c864ff;
+}
+
+.powerup-name {
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #90ee90;
+}
+
+.powerup-description {
+  font-size: 0.9em;
+  color: #ccc;
+  line-height: 1.4;
+}
+
+.round-info {
+  color: #a8a8a8;
+  margin-bottom: 10px;
+}
+
+/* Botones del juego */
+.game-button {
+  padding: 15px 30px;
+  font-size: 1.2em;
+  font-family: "Silkscreen", cursive;
+  cursor: pointer;
+  margin-top: 20px;
+  border-radius: 8px;
+  border: 2px solid #90ee90;
+  background: linear-gradient(135deg, #333, #555);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.game-button:hover {
+  background: linear-gradient(135deg, #555, #777);
+  box-shadow: 0 0 15px rgba(144, 238, 144, 0.5);
+  transform: translateY(-2px);
+}
+
+.game-button:active {
+  transform: translateY(0);
+}
+
+/* Controles móviles */
+#mobile-controls {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#control-switch {
+  position: absolute;
+  top: -100px; /* Increased negative top to separate more */
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid #a8a8a8;
+  border-radius: 20px;
+  padding: 8px 15px;
+  color: white;
+  font-size: 0.9em;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#control-toggle {
+  position: relative;
+  width: 50px;
+  height: 25px;
+  background: #333;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#control-toggle.active {
+  background: #90ee90;
+}
+
+#control-toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 21px;
+  height: 21px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+#control-toggle.active::after {
+  transform: translateX(25px);
+}
+
+#dpad-controls {
+  display: flex;
+  justify-content: space-between; /* Separates left and right columns */
+  align-items: center; /* Vertically centers the columns relative to each other */
+  width: 100%;
+  padding: 0 30px;
+  pointer-events: auto;
+}
+
+.dpad-column-left,
+.dpad-column-right {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Space between elements in the column */
+}
+
+.dpad-row-abilities,
+.dpad-row-horizontal {
+  display: flex;
+  gap: 20px; /* Space between buttons in the row */
+  justify-content: center; /* Center buttons within their row */
+}
+
+.dpad-button,
+.ability-button {
+  width: 90px;
+  height: 90px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(200, 200, 200, 0.7));
+  border-radius: 50%;
+  border: 3px solid white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  color: white;
+  user-select: none;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.1s;
+}
+
+.ability-button {
+  background: linear-gradient(135deg, rgba(144, 238, 144, 0.7), rgba(100, 200, 100, 0.7));
+  border-color: #90ee90;
+}
+
+.ability-button.disabled {
+  background: linear-gradient(135deg, rgba(100, 100, 100, 0.7), rgba(80, 80, 80, 0.7));
+  border-color: #666;
+  opacity: 0.5;
+}
+
+.dpad-button:active,
+.ability-button:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+#joystick-controls {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  pointer-events: auto;
+  position: relative;
+}
+
+.joystick-abilities {
+  position: absolute;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.joystick-abilities .ability-button {
+  width: 70px;
+  height: 70px;
+  font-size: 24px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Efectos especiales */
+.lightning-effect {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(255, 255, 0, 0.8) 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
+  border-radius: 50%;
+  z-index: 15;
+  animation: lightningPulse 0.5s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes lightningPulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+}
+
+.earthquake-effect {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(139, 69, 19, 0.6) 0%, rgba(160, 82, 45, 0.4) 50%, transparent 100%);
+  border-radius: 50%;
+  z-index: 15;
+  animation: earthquakePulse 0.8s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes earthquakePulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 0;
+  }
+}
+
+/* Nuevo: Proyectil de rayo */
+.lightning-projectile {
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, rgba(255, 255, 0, 1) 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(255, 255, 0, 0.8);
+  z-index: 12;
+  transform: translate(-50%, -50%);
+  animation: pulse 0.5s infinite alternate;
+  pointer-events: none; /* No bloquea eventos de ratón/táctil */
+  /* Rastro azul-naranja */
+  filter: drop-shadow(0 0 5px rgba(0, 100, 255, 0.7)) drop-shadow(0 0 10px rgba(255, 165, 0, 0.7));
+}
+
+@keyframes pulse {
+  from {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.8;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Responsividad */
+@media (min-width: 769px) {
+  body {
+    padding: 0; /* Eliminado padding para PC */
+  }
+
+  /* Mostrar UI de habilidades para PC, ocultar móvil */
+  #pc-abilities-ui {
+    display: flex; /* Usar flex para los items de habilidad */
+  }
+  #abilities-ui {
+    display: none;
+  }
+  #mobile-controls {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px), (max-height: 600px) {
+  body {
+    padding: 0; /* Eliminado padding para móvil */
+  }
+
+  /* Ocultar UI de habilidades para PC, mostrar móvil */
+  #pc-abilities-ui {
+    display: none;
+  }
+  #abilities-ui {
+    display: flex; /* Usar flex para los items de habilidad */
+  }
+  #mobile-controls {
+    display: block !important;
+  }
+}
