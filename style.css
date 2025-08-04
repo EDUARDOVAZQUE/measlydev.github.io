@@ -222,7 +222,7 @@ body {
   border-radius: 50%;
   margin: 0 auto 1.5rem;
   border: 3px solid var(--panel-border);
-  background-image: url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFEhyYDVJya56nB2zqeB9-FJAtjBx8GfaXeQ&s);
+  background-image: url(img/measly543.jpg);
   background-size: cover;
   background-position: center;
 }
@@ -341,7 +341,7 @@ body.is-hovering .icon {
   border-radius: 20px;
   margin: 0 auto 1rem;
   border: 2px solid var(--panel-border);
-  background-image: url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFEhyYDVJya56nB2zqeB9-FJAtjBx8GfaXeQ&s);
+  background-image: url(img/measly543.jpg);
   background-size: cover;
   background-position: center;
 }
@@ -493,13 +493,25 @@ body.is-hovering .icon {
   background-size: cover;
   background-position: center;
 }
-
+/*Imagenes proyectos*/
 .project-card[data-category="robotica"] .card-image {
-  background-image: url("img/robotica-icon.png");
+  background-image: url("img/robotica-icon.png"); /* Imagen por defecto */
 }
+
+.project-card.sumo .card-image {
+  background-image: url("img/sumito.jpg"); /* Imagen específica */
+}
+.project-card.rc-car .card-image {
+  background-image: url("img/rc-car.jpg"); /* Imagen específica */
+}
+
+
 
 .project-card[data-category="iot"] .card-image {
   background-image: url("img/iot-icon.png");
+}
+.project-card.rider-safe .card-image {
+  background-image: url("img/ridersafe.jpg"); /* Imagen específica */
 }
 
 .card-title {
