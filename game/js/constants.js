@@ -14,7 +14,7 @@ export const SPEED_INCREASE_PER_ROUND = 0.3
 
 export const HUT_WIDTH = 95.4
 export const HUT_HEIGHT = 128
-export const HUT_HITBOX_MULTIPLIER = 0 // Hitbox aumentado
+export const HUT_HITBOX_MULTIPLIER = 0.5// Hitbox aumentado
 
 export const FRUIT_SIZE = 53.2
 export const COMMON_FRUIT_POINTS = 10
