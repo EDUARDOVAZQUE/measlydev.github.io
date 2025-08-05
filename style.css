@@ -182,10 +182,10 @@ body {
     transform: rotate(0deg) translateY(0px);
   }
   25% {
-    transform: rotate(2deg) translateY(-1px);
+    transform: rotate(4deg) translateY(-4px);
   }
   75% {
-    transform: rotate(-2deg) translateY(1px);
+    transform: rotate(-4deg) translateY(3px);
   }
 }
 
@@ -495,14 +495,14 @@ body.is-hovering .icon {
 }
 /*Imagenes proyectos*/
 .project-card[data-category="robotica"] .card-image {
-  background-image: url("img/robotica-icon.png"); /* Imagen por defecto */
+  background-image: url("img/robotica-icon.png"); 
 }
 
 .project-card.sumo .card-image {
-  background-image: url("img/sumito.jpg"); /* Imagen específica */
+  background-image: url("img/sumito.jpg"); 
 }
 .project-card.rc-car .card-image {
-  background-image: url("img/rc-car.jpg"); /* Imagen específica */
+  background-image: url("img/rc-car.jpg"); 
 }
 
 
@@ -511,7 +511,7 @@ body.is-hovering .icon {
   background-image: url("img/iot-icon.png");
 }
 .project-card.rider-safe .card-image {
-  background-image: url("img/ridersafe.jpg"); /* Imagen específica */
+  background-image: url("img/ridersafe.jpg"); 
 }
 
 .card-title {
