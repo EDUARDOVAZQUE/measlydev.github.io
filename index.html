@@ -4,26 +4,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Measly543 - Portafolio</title>
+  
+  <title>Measly543 | Portafolio de Desarrollo y Robótica</title>
+  <meta name="description" content="Portafolio de Eduardo (Measly543). Estudiante de TIC." />
+  <meta name="theme-color" content="#1a1a1a"> 
+  
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="icon" type="image/png" href="img/favicon.png"> 
 </head>
 
 <body>
-  <!-- Splashscreen -->
-  <div id="home-screen" class="home-screen">
+  <header id="home-screen" class="home-screen">
     <div id="stars"></div>
     <div class="home-content">
-      <div class="home-profile-img animated-element"></div>
+      <div class="home-profile-img animated-element" role="img" aria-label="Foto de perfil"></div>
       <h1 class="home-username animated-element">Measly543</h1>
 
-      <nav class="home-nav">
+      <nav class="home-nav" aria-label="Navegación principal">
         <a href="#about" class="home-nav-button interactive-element animated-element">
           <div class="icon-container"><i class="fa-solid fa-user icon"></i></div>
           <span>Acerca de mí</span>
         </a>
         <a href="#projects" class="home-nav-button interactive-element animated-element">
-          <div class="icon-container"><i class="fa-solid fa-microchip icon" style="color: #ffffff;"></i></div>
+          <div class="icon-container"><i class="fa-solid fa-microchip icon"></i></div>
           <span>Proyectos</span>
         </a>
         <a href="#experience" class="home-nav-button interactive-element animated-element">
@@ -34,235 +39,86 @@
           <div class="icon-container"><i class="fa-solid fa-phone icon"></i></div>
           <span>Contacto</span>
         </a>
-        <a href="#secret-game" id="home-secret-button" class="home-nav-button interactive-element animated-element"
-          style="display: none;">
-          <div class="icon-container"><i class="fa-solid fa-gamepad icon"></i></div>
-          <span>Juego</span>
-        </a>
       </nav>
     </div>
-  </div>
+  </header>
 
-  <!-- Contenedor principal con sidebar -->
   <div id="main-portfolio">
-    <!-- Botón de menú móvil -->
-    <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Abrir menú">
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menú">
       <i class="fa-solid fa-bars"></i>
     </button>
 
-    <!-- Sidebar -->
     <aside class="sidebar">
       <div class="profile">
-        <a href="#home-screen" id="back-to-home" class="home-profile-img" title="Volver al inicio"></a>
+        <a href="#home-screen" id="back-to-home" class="home-profile-img" title="Inicio"></a>
         <h1 class="profile-name">Measly543</h1>
       </div>
       <nav class="navigation">
         <ul>
-          <li><a href="#about" class="nav-link active interactive-element">
-              <i class="fa-solid fa-user icon"></i><span>Acerca de mí</span>
-            </a></li>
-          <li><a href="#projects" class="nav-link interactive-element">
-              <i class="fa-solid fa-microchip icon"></i><span>Proyectos</span>
-            </a></li>
-          <li><a href="#experience" class="nav-link interactive-element">
-              <i class="fa-solid fa-camera-retro icon"></i><span>Experiencias</span>
-            </a></li>
-          <li><a href="#contact" class="nav-link interactive-element">
-              <i class="fa-solid fa-phone icon"></i><span>Contacto</span>
-            </a></li>
-          <li id="secret-nav-item" style="display: none;">
-            <a href="#secret-game" class="nav-link interactive-element">
-              <i class="fa-solid fa-gamepad icon"></i><span>Juego</span>
-            </a>
-          </li>
+          <li><a href="#about" class="nav-link interactive-element"><i class="fa-solid fa-user icon"></i><span>Acerca de mí</span></a></li>
+          <li><a href="#projects" class="nav-link interactive-element"><i class="fa-solid fa-microchip icon"></i><span>Proyectos</span></a></li>
+          <li><a href="#experience" class="nav-link interactive-element"><i class="fa-solid fa-camera-retro icon"></i><span>Experiencias</span></a></li>
+          <li><a href="#contact" class="nav-link interactive-element"><i class="fa-solid fa-phone icon"></i><span>Contacto</span></a></li>
         </ul>
       </nav>
     </aside>
 
-    <!-- Contenido principal -->
     <main class="main-content">
+      
       <section id="about" class="content-section centered-content">
         <h2>Acerca de Mí</h2>
-        <p>
-          ¡Hola! Soy Eduardo, estudiante de Tecnologías de la Información y Comunicaciones en el ITSOEH, desarrollador y
-          entusiasta de la robótica y la electrónica. Me apasiona crear soluciones innovadoras que integran hardware y
-          software. En este espacio comparto algunos de los proyectos en los que he trabajado y las experiencias que he
-          acumulado a lo largo de mi formación.
-        </p>
+        <p>¡Hola! Soy Eduardo, estudiante de TIC en el ITSOEH, desarrollador y entusiasta de la robótica.</p>
         <div class="image-container">
-          <img src="img/acercademi.jpg" alt="Imagen reciente acerca de mi vida" class="about-image">
+          <img src="img/acercademi.jpg" alt="Eduardo trabajando" class="about-image" loading="eager"> 
           <div class="fade-top"></div>
           <div class="fade-bottom"></div>
         </div>
-
       </section>
 
       <section id="projects" class="content-section">
         <h2>Proyectos</h2>
         <div class="filter-container">
           <label for="category-filter">Filtrar por categoría</label>
-          <select id="category-filter" name="category-filter">
+          <select id="category-filter" name="category-filter" class="interactive-element">
             <option value="all">Todas</option>
             <option value="robotica">Robótica</option>
             <option value="software">Software</option>
             <option value="iot">IoT</option>
           </select>
         </div>
-        <div class="projects-grid">
-          <div class="project-card interactive-element rc-car" data-category="robotica">
-            <div class="card-inner">
-              <div class="card-front">
-                <div class="card-image"></div>
-                <p class="card-title">Carro RC - Arduino</p>
-              </div>
-              <div class="card-back">
-                <h3>Carro RC</h3>
-                <p>Un vehículo a control remoto construido desde cero, utilizando un arduino uno y HC-05.</p>
-                <span class="category-tag">Robótica</span>
-                <div class="social-links">
-                  <a href="https://youtube.com" target="_blank"><i class="fab fa-youtube"></i></a>
-                  <a href="https://tiktok.com" target="_blank"><i class="fab fa-tiktok"></i></a>
-                  <a href="https://github.com" target="_blank"><i class="fab fa-github"></i></a>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="project-card interactive-element sumo" data-category="robotica">
-            <div class="card-inner">
-              <div class="card-front">
-                <div class="card-image"></div>
-                <p class="card-title">Robot Sumo</p>
-              </div>
-              <div class="card-back">
-                <h3>Robot Sumo</h3>
-                <p>Robot autónomo diseñado para competencias de sumo.</p>
-                <span class="category-tag">Robótica</span>
-              </div>
-            </div>
-          </div>
-           <div class="project-card interactive-element rider-safe" data-category="iot">
-            <div class="card-inner">
-              <div class="card-front">
-                <div class="card-image"></div>
-                <p class="card-title">RiderSafe</p>
-              </div>
-              <div class="card-back">
-                <h3>Cortacorriente para moticicleta</h3>
-                <p>Dispositivo que usa un relevador para cortar el suministro de energia al CLI de una moticicleta,
-                  usando dos placas HELTEC wifi Lora 32 v2.</p>
-                <span class="category-tag">Robótica</span>
-              </div>
-            </div>
-          </div>
-
-         
-        </div>
-        <h3>En progreso...</h3>
-        <div class="projects-grid">
-          <div class="project-card interactive-element" data-category="iot">
-            <div class="card-inner">
-              <div class="card-front">
-                <div class="card-image"></div>
-                <p class="card-title">Juego en ESP32</p>
-              </div>
-              <div class="card-back">
-                <h3>Juego en ESP32</h3>
-                <p>Desarrollo de un juego simple tipo arcade que corre en un microcontrolador ESP32 con una pantalla
-                  OLED.</p>
-                <span class="category-tag">IoT</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        
+        <div class="projects-grid" id="projects-container">
+</div>
       </section>
 
       <section id="experience" class="content-section centered-content">
         <h2>Experiencias</h2>
-        <p>Aquí enlisto mis experiencias laborales, competencias o eventos relevantes.</p>
-        <ul class="experience-list">
-          <li class="experience-item">
-            <button class="experience-toggle">
-              <div>
-                <h4>Competencia de Robótica VEX</h4>
-                <span>2024 - Participante como diseñador y driver.</span>
-              </div>
-              <i class="fa-solid fa-chevron-down toggle-icon"></i>
-            </button>
-            <div class="experience-details">
-              <p>Participé como driver y diseñador en la competencia VEX. Aprendí mucho sobre trabajo en equipo y
-                programación con sensores.</p>
-              <div class="experience-gallery">
-                <img src="img/vex.jpg" alt="Foto 1 VEX">
-                <img src="img/vex2.jpg" alt="Foto 2 VEX">
-              </div>
-            </div>
-          </li>
-
-         <!-- <li class="experience-item">
-            <button class="experience-toggle">
-              <div>
-                <h4>Hackathon Local</h4>
-                <span>2024 - Ganador del premio a la innovación.</span>
-              </div>
-              <i class="fa-solid fa-chevron-down toggle-icon"></i>
-            </button>
-            <div class="experience-details">
-              <p>En este evento creamos una solución de IoT para monitorear plantas. Fue muy emocionante recibir
-                reconocimiento.</p>
-              <div class="experience-gallery">
-                <img src="https://i.pinimg.com/474x/a7/de/c4/a7dec46aca07b2e12e2e361cfa9312ec.jpg" alt="Hackathon 1">
-                <img src="https://i.pinimg.com/474x/a7/de/c4/a7dec46aca07b2e12e2e361cfa9312ec.jpg" alt="Hackathon 2">
-              </div>
-            </div>
-          </li>  -->
-        </ul>
+        <p>Aquí enlisto mis experiencias laborales y competencias.</p>
+        
+       <ul class="experience-list" id="experience-container">
+  </ul>
       </section>
-
 
       <section id="contact" class="content-section centered-content">
         <h2>Contacto</h2>
-        <p>
-          ¿Interesado en colaborar o tienes alguna pregunta? ¡Contáctame!
-        </p>
         <div class="contact-links">
-          <a href="https://github.com/EDUARDOVAZQUE" class="interactive-element"><i
-              class="fa-brands fa-github icon"></i> GitHub</a>
-          <a href="https://www.linkedin.com/in/jesus-eduardo-vazquez-martinez-975670376/" class="interactive-element"><i
-              class="fa-brands fa-linkedin icon"></i> LinkedIn</a>
-          <a href="mailto:22011935@itsoeh.edu.mx" class="interactive-element"><i class="fa-solid fa-envelope icon"></i>
-            Email</a>
-          <a href="https://www.youtube.com/@Measly" class="interactive-element"><i
-              class="fa-brands fa-youtube icon"></i> Youtube</a>
+          <a href="https://github.com/EDUARDOVAZQUE" target="_blank" class="interactive-element"><i class="fa-brands fa-github icon"></i> GitHub</a>
+          <a href="mailto:22011935@itsoeh.edu.mx" class="interactive-element"><i class="fa-solid fa-envelope icon"></i> Email</a>
         </div>
-      </section>
-
-      <section id="secret-game" class="content-section centered-content" style="display: none;">
-        <h2>Juego Secreto</h2>
-        <p>¡Felicidades! Has desbloqueado el juego secreto.</p>
-        <div class="game-stats">
-          <div class="stat-item">
-            <i class="fa-solid fa-trophy"></i>
-            <span>Victorias: <span id="game-total-wins">0</span></span>
-            <!-- Botón para ocultar/mostrar controles -->
-
-          </div>
-          <div id="game-container" class="game-container">
-            <div class="game-controls">
-              <button id="fullscreen-game-btn" class="fullscreen-btn">
-                <i class="fa-solid fa-expand"></i> Pantalla Completa
-              </button>
-            </div>
-            <!-- Botón para ocultar/mostrar controles -->
-
-            <iframe src="game/index.html" class="game-iframe" title="Juego Secreto" allowfullscreen>
-            </iframe>
-
-          </div>
       </section>
     </main>
   </div>
 
-  <script src="script.js"></script>
+  <div id="lightbox" class="lightbox">
+    <button id="lightbox-close" class="lightbox-btn close">&times;</button>
+    <button id="lightbox-prev" class="lightbox-btn prev">&#10094;</button>
+    <button id="lightbox-next" class="lightbox-btn next">&#10095;</button>
+    <div class="lightbox-content">
+      <img id="lightbox-img" src="" alt="Vista ampliada">
+      <p id="lightbox-caption"></p>
+    </div>
+  </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <script src="script.js" defer></script>  
 </body>
-
 </html>
