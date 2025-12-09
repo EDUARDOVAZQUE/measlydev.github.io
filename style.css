@@ -784,5 +784,13 @@ body.is-hovering .icon {
 
 .video-thumbnail-wrapper:hover::after {
   transform: translate(-50%, -50%) scale(1.2);
-  color: #ff0000; /* Rojo YouTube */
+  color: #ff0000; 
+}
+
+@media (max-width: 768px) {
+  .lightbox-video-container {
+    width: 90vw;
+    height: 80vh; 
+    max-height: none;
+  }
 }
