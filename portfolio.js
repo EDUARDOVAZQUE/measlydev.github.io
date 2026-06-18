@@ -4,6 +4,16 @@
  * Reemplaza al script.js legacy de forma estructurada, responsive y libre de bugs.
  */
 
+import * as THREE from 'three';
+import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+
+// --- AUDIO GLOBAL ---
+const globalSelectSound = new Audio('select.wav');
+document.addEventListener("click", () => {
+  globalSelectSound.currentTime = 0;
+  globalSelectSound.play().catch(() => { });
+}, true);
+
 // --- CONFIGURACIÓN Y CONSTANTES ---
 const URL_PROYECTOS = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZZPmt1THay_5WxYr3A6Y0RIThhwKhRkF1KEG2hOC4jUM6A6HkWMxRSFVe7WRrqpLigl4ULR3_gzYm/pub?gid=0&single=true&output=csv";
 const URL_EXPERIENCIA = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQZZPmt1THay_5WxYr3A6Y0RIThhwKhRkF1KEG2hOC4jUM6A6HkWMxRSFVe7WRrqpLigl4ULR3_gzYm/pub?gid=365720775&single=true&output=csv";
@@ -23,15 +33,18 @@ const state = {
   activeSection: 'home-screen'
 };
 
+let sidebar3D = null;
+
 // --- INICIALIZACIÓN ---
 document.addEventListener("DOMContentLoaded", () => {
   createStars();
   setupMobileMenu();
   setupSmoothScroll();
+  sidebar3D = initSidebar3D();
   setupScrollSpy();
   setupResizeHandler();
   setupLightbox();
-  
+
   // Cargar datos dinámicos
   loadProjects();
   loadExperience();
@@ -49,24 +62,24 @@ function getYouTubeId(url) {
 function createStars() {
   const container = document.getElementById("stars");
   if (!container) return;
-  
+
   container.innerHTML = "";
   const count = 60;
-  
+
   for (let i = 0; i < count; i++) {
     const star = document.createElement("div");
     const isFugaz = Math.random() < 0.1;
-    
+
     star.classList.add("star");
     if (isFugaz) {
       star.classList.add("fugaz");
     }
-    
+
     star.style.left = `${Math.random() * 100}%`;
     star.style.top = `${Math.random() * 100}%`;
     star.style.animationDuration = `${Math.random() * 5 + 3}s`;
     star.style.animationDelay = `${Math.random() * 5}s`;
-    
+
     container.appendChild(star);
   }
 }
@@ -75,14 +88,14 @@ function createStars() {
 function setupMobileMenu() {
   const toggle = document.getElementById("mobile-menu-toggle");
   const sidebar = document.querySelector(".sidebar");
-  
+
   if (!toggle || !sidebar) return;
-  
+
   toggle.addEventListener("click", () => {
     const isOpen = sidebar.classList.toggle("open");
     toggle.setAttribute("aria-expanded", isOpen);
   });
-  
+
   // Cerrar sidebar al hacer clic fuera (en móviles)
   document.addEventListener("click", (e) => {
     if (window.innerWidth <= 768 && sidebar.classList.contains("open")) {
@@ -97,16 +110,17 @@ function setupMobileMenu() {
 // --- DESPLAZAMIENTO SUAVE ---
 function setupSmoothScroll() {
   const links = document.querySelectorAll('.home-nav-button, .nav-link, #back-to-home');
-  
+
   links.forEach(link => {
     link.addEventListener("click", (e) => {
       const href = link.getAttribute("href");
       if (!href || !href.startsWith("#")) return;
-      
+
       e.preventDefault();
+
       const target = document.querySelector(href);
       if (!target) return;
-      
+
       // Cerrar menú móvil si está abierto
       const sidebar = document.querySelector(".sidebar");
       const toggle = document.getElementById("mobile-menu-toggle");
@@ -114,7 +128,7 @@ function setupSmoothScroll() {
         sidebar.classList.remove("open");
         if (toggle) toggle.setAttribute("aria-expanded", "false");
       }
-      
+
       target.scrollIntoView({ behavior: "smooth" });
     });
   });
@@ -126,11 +140,12 @@ function setupScrollSpy() {
   const navLinks = document.querySelectorAll('.nav-link');
   const sidebar = document.querySelector('.sidebar');
   const mainContent = document.querySelector('.main-content');
-  
+  let isPanelVisible = false;
+
   const handleScroll = () => {
     let current = 'home-screen';
     const scrollPosition = window.scrollY + 200; // Offset para mejor activación
-    
+
     sections.forEach(section => {
       const top = section.offsetTop;
       const height = section.offsetHeight;
@@ -138,28 +153,44 @@ function setupScrollSpy() {
         current = section.getAttribute('id');
       }
     });
-    
+
     state.activeSection = current;
-    
+
     // Activar link en la barra lateral
     navLinks.forEach(link => {
-      link.classList.remove('active');
       const href = link.getAttribute('href');
       if (href === `#${current}`) {
-        link.classList.add('active');
+        if (!link.classList.contains('active')) {
+          link.classList.add('active');
+          link.classList.add('active-flash');
+          setTimeout(() => {
+            link.classList.remove('active-flash');
+          }, 600);
+          if (sidebar3D) sidebar3D.updateY(current);
+        }
+      } else {
+        link.classList.remove('active');
       }
     });
-    
+
     // Controlar visibilidad del sidebar y ancho del contenido según estemos en el Home o no
     if (current === 'home-screen') {
       sidebar.classList.add('hidden-on-home');
       if (mainContent) mainContent.classList.add('full-width');
+      if (isPanelVisible) {
+        isPanelVisible = false;
+        if (sidebar3D) sidebar3D.trigger(false);
+      }
     } else {
       sidebar.classList.remove('hidden-on-home');
       if (mainContent) mainContent.classList.remove('full-width');
+      if (!isPanelVisible) {
+        isPanelVisible = true;
+        if (sidebar3D) sidebar3D.trigger(true);
+      }
     }
   };
-  
+
   window.addEventListener('scroll', handleScroll);
   // Ejecutar una vez al inicio
   handleScroll();
@@ -170,7 +201,7 @@ function setupResizeHandler() {
   const updateItemsPerPage = () => {
     const width = window.innerWidth;
     let oldVal = state.itemsPerPage;
-    
+
     if (width > 1024) {
       state.itemsPerPage = 3;
     } else if (width > 768) {
@@ -178,14 +209,14 @@ function setupResizeHandler() {
     } else {
       state.itemsPerPage = 1;
     }
-    
+
     // Si cambia el número de items por página, reseteamos la página actual para evitar bugs
     if (oldVal !== state.itemsPerPage) {
       state.currentProjectPage = 0;
       updateCarouselPosition();
     }
   };
-  
+
   window.addEventListener("resize", updateItemsPerPage);
   updateItemsPerPage(); // Carga inicial
 }
@@ -196,7 +227,7 @@ function loadProjects() {
     console.error("PapaParse no está cargado");
     return;
   }
-  
+
   Papa.parse(URL_PROYECTOS, {
     download: true,
     header: true,
@@ -217,11 +248,11 @@ function loadProjects() {
 function setupCategoryFilter() {
   const filter = document.getElementById("category-filter");
   if (!filter) return;
-  
+
   // Re-enlazar evento en caso de re-renderizado
   filter.replaceWith(filter.cloneNode(true));
   const newFilter = document.getElementById("category-filter");
-  
+
   newFilter.addEventListener("change", (e) => {
     const val = e.target.value;
     if (val === "all") {
@@ -229,7 +260,7 @@ function setupCategoryFilter() {
     } else {
       state.filteredProjects = state.projects.filter(p => p.category && p.category.toLowerCase() === val.toLowerCase());
     }
-    
+
     state.currentProjectPage = 0;
     renderProjectsCarousel();
   });
@@ -239,20 +270,20 @@ function setupCategoryFilter() {
 function renderProjectsCarousel() {
   const container = document.getElementById("projects-container");
   if (!container) return;
-  
+
   container.innerHTML = "";
-  
+
   if (state.filteredProjects.length === 0) {
     container.innerHTML = `<p class="no-projects">No hay proyectos en esta categoría.</p>`;
     updateCarouselControls(0);
     return;
   }
-  
+
   state.filteredProjects.forEach((proj, idx) => {
     const card = document.createElement("article");
     card.className = "project-card interactive-element";
     card.setAttribute("data-id", idx);
-    
+
     // Obtener imagen de fondo predeterminada o la del proyecto
     let imgUrl = proj.image || "";
     if (!imgUrl) {
@@ -262,7 +293,7 @@ function renderProjectsCarousel() {
         imgUrl = "img/iot-icon.png";
       }
     }
-    
+
     card.innerHTML = `
       <div class="card-front">
         <div class="card-image" style="background-image: url('${imgUrl}')" role="img" aria-label="${proj.title}"></div>
@@ -273,15 +304,15 @@ function renderProjectsCarousel() {
         </div>
       </div>
     `;
-    
+
     // Evento de clic para abrir el modal de detalles
     card.addEventListener("click", () => {
       openProjectDetailsModal(proj);
     });
-    
+
     container.appendChild(card);
   });
-  
+
   // Calcular total de páginas
   const totalPages = Math.ceil(state.filteredProjects.length / state.itemsPerPage);
   setupCarouselControls(totalPages);
@@ -293,36 +324,36 @@ function setupCarouselControls(totalPages) {
   const prevBtn = document.getElementById("projects-prev");
   const nextBtn = document.getElementById("projects-next");
   const dotsContainer = document.getElementById("projects-dots");
-  
+
   if (!prevBtn || !nextBtn || !dotsContainer) return;
-  
+
   // Limpiar eventos anteriores clonando botones
   prevBtn.replaceWith(prevBtn.cloneNode(true));
   nextBtn.replaceWith(nextBtn.cloneNode(true));
-  
+
   const newPrev = document.getElementById("projects-prev");
   const newNext = document.getElementById("projects-next");
-  
+
   if (totalPages <= 1) {
     newPrev.style.display = "none";
     newNext.style.display = "none";
     dotsContainer.innerHTML = "";
     return;
   }
-  
+
   newPrev.style.display = "flex";
   newNext.style.display = "flex";
-  
+
   newPrev.addEventListener("click", () => {
     state.currentProjectPage = (state.currentProjectPage - 1 + totalPages) % totalPages;
     updateCarouselPosition();
   });
-  
+
   newNext.addEventListener("click", () => {
     state.currentProjectPage = (state.currentProjectPage + 1) % totalPages;
     updateCarouselPosition();
   });
-  
+
   // Generar puntos indicadores (dots)
   dotsContainer.innerHTML = "";
   for (let i = 0; i < totalPages; i++) {
@@ -335,21 +366,21 @@ function setupCarouselControls(totalPages) {
     });
     dotsContainer.appendChild(dot);
   }
-  
+
   // Soporte de swipe táctil
   const viewport = document.querySelector(".carousel-viewport");
   if (viewport) {
     let startX = 0;
     let endX = 0;
-    
+
     viewport.addEventListener("touchstart", (e) => {
       startX = e.touches[0].clientX;
     }, { passive: true });
-    
+
     viewport.addEventListener("touchend", (e) => {
       endX = e.changedTouches[0].clientX;
       const diff = startX - endX;
-      
+
       if (Math.abs(diff) > 50) { // Umbral de swipe
         if (diff > 0) {
           // Swipe izquierda (siguiente)
@@ -367,11 +398,11 @@ function setupCarouselControls(totalPages) {
 function updateCarouselPosition() {
   const container = document.getElementById("projects-container");
   const dots = document.querySelectorAll(".carousel-dot");
-  
+
   if (container) {
     container.style.transform = `translateX(-${state.currentProjectPage * 100}%)`;
   }
-  
+
   dots.forEach((dot, idx) => {
     if (idx === state.currentProjectPage) {
       dot.classList.add("active");
@@ -385,7 +416,7 @@ function updateCarouselControls(totalPages) {
   const prevBtn = document.getElementById("projects-prev");
   const nextBtn = document.getElementById("projects-next");
   const dotsContainer = document.getElementById("projects-dots");
-  
+
   if (prevBtn && nextBtn && dotsContainer) {
     if (totalPages === 0) {
       prevBtn.style.display = "none";
@@ -401,25 +432,25 @@ function openProjectDetailsModal(proj) {
   const lbImg = document.getElementById("lightbox-img");
   const lbVideoContainer = document.getElementById("lightbox-video");
   const lbCaption = document.getElementById("lightbox-caption");
-  
+
   if (!lightbox || !lbImg || !lbVideoContainer || !lbCaption) return;
-  
+
   // Agregar clase indicadora de proyecto para estilos side-by-side
   const lbContent = document.querySelector(".lightbox-content");
   if (lbContent) lbContent.classList.add("is-project-modal");
-  
+
   // Resetear contenidos
   lbImg.style.display = "none";
   lbVideoContainer.style.display = "none";
   lbVideoContainer.innerHTML = "";
-  
+
   // Ocultar botones de navegación del lightbox nativo (ya que el modal de detalles es único por proyecto)
   document.getElementById("lightbox-prev").style.display = "none";
   document.getElementById("lightbox-next").style.display = "none";
-  
+
   // Determinar si hay video
   const ytId = getYouTubeId(proj.youtube);
-  
+
   if (ytId) {
     lbVideoContainer.style.display = "block";
     lbVideoContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
@@ -433,7 +464,7 @@ function openProjectDetailsModal(proj) {
     lbImg.src = proj.category && proj.category.toLowerCase() === 'robotica' ? "img/robotica-icon.png" : "img/iot-icon.png";
     lbImg.alt = proj.title;
   }
-  
+
   // Construir HTML de links sociales
   let socialLinksHTML = "";
   if (proj.github || proj.youtube || proj.tiktok) {
@@ -449,7 +480,7 @@ function openProjectDetailsModal(proj) {
     }
     socialLinksHTML += `</div>`;
   }
-  
+
   // Armar todo el detalle en la sección del pie de modal
   lbCaption.innerHTML = `
     <div class="project-modal-details">
@@ -459,7 +490,7 @@ function openProjectDetailsModal(proj) {
       ${socialLinksHTML}
     </div>
   `;
-  
+
   // Abrir Lightbox
   lightbox.classList.add("active");
   document.body.style.overflow = "hidden"; // Desactivar scroll de fondo
@@ -482,7 +513,7 @@ function sortExperiencesNewestFirst(expList) {
 // --- CARGA DE EXPERIENCIAS (PAPAPARSE) ---
 function loadExperience() {
   if (typeof Papa === "undefined") return;
-  
+
   Papa.parse(URL_EXPERIENCIA, {
     download: true,
     header: true,
@@ -502,9 +533,9 @@ function loadExperience() {
 function renderExperiences() {
   const container = document.getElementById("experience-container");
   if (!container) return;
-  
+
   container.innerHTML = "";
-  
+
   // Filtrar experiencias según tab activo
   const filteredExp = state.experiences.filter(exp => {
     let category = exp.category || exp.type;
@@ -520,60 +551,60 @@ function renderExperiences() {
     }
     return category === state.activeExperienceTab;
   });
-  
+
   if (filteredExp.length === 0) {
     container.innerHTML = `<p class="no-projects">No hay registros en esta categoría.</p>`;
     updateExperiencePagination(0);
     return;
   }
-  
+
   // Paginación de experiencias (máximo 4 por página)
   const totalPages = Math.ceil(filteredExp.length / state.experienceItemsPerPage);
-  
+
   // Asegurar que la página actual no esté fuera de límites
   if (state.currentExperiencePage >= totalPages) {
     state.currentExperiencePage = 0;
   }
-  
+
   const start = state.currentExperiencePage * state.experienceItemsPerPage;
   const end = start + state.experienceItemsPerPage;
   const pagedExp = filteredExp.slice(start, end);
-  
+
   pagedExp.forEach((exp) => {
     const item = document.createElement("li");
     item.className = "experience-item";
-    
+
     // Parsear imágenes (img1-img4) y videos (video1-video4)
     const imgUrls = [];
     const videoUrls = [];
-    
+
     for (let i = 1; i <= 4; i++) {
       const imgKey = `img${i}`;
       const altKey = `alt${i}`;
       const videoKey = `video${i}`;
-      
+
       if (exp[imgKey] && exp[imgKey].trim().length > 0) {
         imgUrls.push({
           url: exp[imgKey].trim(),
           alt: (exp[altKey] && exp[altKey].trim()) || exp.title || "Imagen de la experiencia"
         });
       }
-      
+
       if (exp[videoKey] && exp[videoKey].trim().length > 0) {
         videoUrls.push(exp[videoKey].trim());
       }
     }
-    
+
     let galleryHTML = "";
-    
+
     if (imgUrls.length > 0 || videoUrls.length > 0) {
       galleryHTML += `<div class="experience-gallery">`;
-      
+
       // Añadir imágenes
       imgUrls.forEach(img => {
         galleryHTML += `<img src="${img.url}" alt="${img.alt}" loading="lazy" class="gallery-item" data-type="image">`;
       });
-      
+
       // Añadir videos (miniaturas de youtube)
       videoUrls.forEach(url => {
         const ytId = getYouTubeId(url);
@@ -585,10 +616,10 @@ function renderExperiences() {
           `;
         }
       });
-      
+
       galleryHTML += `</div>`;
     }
-    
+
     item.innerHTML = `
       <button class="experience-toggle" aria-expanded="false">
         <div class="experience-header-text">
@@ -603,10 +634,10 @@ function renderExperiences() {
         ${galleryHTML}
       </div>
     `;
-    
+
     container.appendChild(item);
   });
-  
+
   setupExperienceAccordion();
   updateExperiencePagination(totalPages);
 }
@@ -617,35 +648,35 @@ function updateExperiencePagination(totalPages) {
   const prevBtn = document.getElementById("experience-prev");
   const nextBtn = document.getElementById("experience-next");
   const dotsContainer = document.getElementById("experience-dots");
-  
+
   if (!container || !prevBtn || !nextBtn || !dotsContainer) return;
-  
+
   if (totalPages <= 1) {
     container.style.display = "none";
     return;
   }
-  
+
   container.style.display = "flex";
-  
+
   // Limpiar eventos anteriores clonando botones
   prevBtn.replaceWith(prevBtn.cloneNode(true));
   nextBtn.replaceWith(nextBtn.cloneNode(true));
-  
+
   const newPrev = document.getElementById("experience-prev");
   const newNext = document.getElementById("experience-next");
-  
+
   newPrev.addEventListener("click", () => {
     state.currentExperiencePage = (state.currentExperiencePage - 1 + totalPages) % totalPages;
     renderExperiences();
     document.getElementById("experience").scrollIntoView({ behavior: "smooth" });
   });
-  
+
   newNext.addEventListener("click", () => {
     state.currentExperiencePage = (state.currentExperiencePage + 1) % totalPages;
     renderExperiences();
     document.getElementById("experience").scrollIntoView({ behavior: "smooth" });
   });
-  
+
   // Generar puntos indicadores (dots)
   dotsContainer.innerHTML = "";
   for (let i = 0; i < totalPages; i++) {
@@ -665,12 +696,12 @@ function updateExperiencePagination(totalPages) {
 function setupExperienceTabs() {
   const tabs = document.querySelectorAll(".experience-tab-btn");
   if (tabs.length === 0) return;
-  
+
   // Limpiar y re-enlazar eventos
   tabs.forEach(tab => {
     tab.replaceWith(tab.cloneNode(true));
   });
-  
+
   const newTabs = document.querySelectorAll(".experience-tab-btn");
   newTabs.forEach(tab => {
     // Restaurar clase active según el estado
@@ -680,7 +711,7 @@ function setupExperienceTabs() {
     } else {
       tab.classList.remove("active");
     }
-    
+
     tab.addEventListener("click", () => {
       newTabs.forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
@@ -694,12 +725,12 @@ function setupExperienceTabs() {
 // --- ACORDEÓN DE EXPERIENCIAS ---
 function setupExperienceAccordion() {
   const toggles = document.querySelectorAll(".experience-toggle");
-  
+
   toggles.forEach(toggle => {
     toggle.addEventListener("click", () => {
       const details = toggle.nextElementSibling;
       const isExpanded = toggle.getAttribute("aria-expanded") === "true";
-      
+
       // Cerrar otros acordeones abiertos para limpieza visual
       document.querySelectorAll(".experience-toggle").forEach(otherToggle => {
         if (otherToggle !== toggle && otherToggle.getAttribute("aria-expanded") === "true") {
@@ -710,7 +741,7 @@ function setupExperienceAccordion() {
           otherDetails.setAttribute("hidden", "true");
         }
       });
-      
+
       // Toggle actual
       if (isExpanded) {
         toggle.setAttribute("aria-expanded", "false");
@@ -736,9 +767,9 @@ function setupLightbox() {
   const closeBtn = document.getElementById("lightbox-close");
   const prevBtn = document.getElementById("lightbox-prev");
   const nextBtn = document.getElementById("lightbox-next");
-  
+
   if (!lightbox || !closeBtn || !prevBtn || !nextBtn) return;
-  
+
   // Cerrar lightbox
   const closeLightbox = () => {
     lightbox.classList.remove("active");
@@ -747,23 +778,23 @@ function setupLightbox() {
     const lbContent = document.querySelector(".lightbox-content");
     if (lbContent) lbContent.classList.remove("is-project-modal");
   };
-  
+
   closeBtn.addEventListener("click", closeLightbox);
   lightbox.addEventListener("click", (e) => {
     if (e.target === lightbox || e.target.classList.contains("lightbox-content")) {
       closeLightbox();
     }
   });
-  
+
   // Navegación del lightbox (Galería de Experiencias)
   const updateLightboxContent = () => {
     const item = state.currentGallery[state.currentLightboxIndex];
     if (!item) return;
-    
+
     lbImg.style.display = "none";
     lbVideoContainer.style.display = "none";
     lbVideoContainer.innerHTML = "";
-    
+
     const type = item.getAttribute("data-type");
     if (type === "video") {
       const videoId = item.getAttribute("data-video-id");
@@ -778,54 +809,54 @@ function setupLightbox() {
       lbCaption.textContent = item.alt || "Imagen de la experiencia";
     }
   };
-  
+
   // Evento de clic delegado para abrir el lightbox desde las galerías de experiencias
   document.addEventListener("click", (e) => {
     const galleryItem = e.target.closest(".gallery-item");
     if (!galleryItem) return;
-    
+
     // Si es un item de proyecto, se maneja por su propio modal en openProjectDetailsModal
     if (galleryItem.closest(".project-card")) return;
-    
+
     e.stopPropagation();
-    
+
     // Asegurar que no tenga la clase de proyecto
     const lbContent = document.querySelector(".lightbox-content");
     if (lbContent) lbContent.classList.remove("is-project-modal");
-    
+
     // Obtener todas las fotos/videos de esta galería específica
     const parentGallery = galleryItem.closest(".experience-gallery");
     if (!parentGallery) return;
-    
+
     state.currentGallery = Array.from(parentGallery.querySelectorAll(".gallery-item"));
     state.currentLightboxIndex = state.currentGallery.indexOf(galleryItem);
-    
+
     // Mostrar botones de navegación
     prevBtn.style.display = state.currentGallery.length > 1 ? "block" : "none";
     nextBtn.style.display = state.currentGallery.length > 1 ? "block" : "none";
-    
+
     updateLightboxContent();
     lightbox.classList.add("active");
     document.body.style.overflow = "hidden";
   });
-  
+
   // Controles
   prevBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     state.currentLightboxIndex = (state.currentLightboxIndex - 1 + state.currentGallery.length) % state.currentGallery.length;
     updateLightboxContent();
   });
-  
+
   nextBtn.addEventListener("click", (e) => {
     e.stopPropagation();
     state.currentLightboxIndex = (state.currentLightboxIndex + 1) % state.currentGallery.length;
     updateLightboxContent();
   });
-  
+
   // Controles de teclado
   document.addEventListener("keydown", (e) => {
     if (!lightbox.classList.contains("active")) return;
-    
+
     if (e.key === "Escape") {
       closeLightbox();
     } else if (e.key === "ArrowRight" && state.currentGallery.length > 1) {
@@ -836,4 +867,194 @@ function setupLightbox() {
       updateLightboxContent();
     }
   });
+}
+
+// --- VISUALIZADOR 3D EN PANEL LATERAL (SIDEBAR) ---
+function initSidebar3D() {
+  const container = document.getElementById('sidebar-3d-canvas-container');
+  if (!container) return null;
+
+  const scene = new THREE.Scene();
+
+  const width = container.clientWidth || 260;
+  const height = container.clientHeight || window.innerHeight;
+
+  const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+  camera.position.set(0, 0.5, 3.2);
+  camera.lookAt(0, 0.2, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(width, height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  container.appendChild(renderer.domElement);
+
+  let mixer = null;
+  let mainAction = null;
+  let animationClip = null;
+  const clock = new THREE.Clock();
+  let loadedModel = null;
+  let initialY = 0;
+  let targetY = -0.25;
+
+  function addOutline(child, thickness = 0.02) {
+    const outlineMaterial = new THREE.MeshBasicMaterial({
+      color: 0x000000,
+      side: THREE.BackSide
+    });
+
+    outlineMaterial.onBeforeCompile = (shader) => {
+      shader.uniforms.thickness = { value: thickness };
+      shader.vertexShader = 'uniform float thickness;\n' + shader.vertexShader;
+      shader.vertexShader = shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>\ntransformed += normal * thickness;`
+      );
+    };
+
+    let outline;
+    if (child.isSkinnedMesh) {
+      outline = new THREE.SkinnedMesh(child.geometry, outlineMaterial);
+      outline.skeleton = child.skeleton;
+      outline.bindMatrix = child.bindMatrix;
+      outline.bindMatrixInverse = child.bindMatrixInverse;
+    } else {
+      outline = new THREE.Mesh(child.geometry, outlineMaterial);
+    }
+    child.add(outline);
+  }
+
+  const loader = new FBXLoader();
+  loader.load('model.fbx', (fbx) => {
+    const box = new THREE.Box3().setFromObject(fbx);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+
+    if (maxDim > 0) {
+      const scale = 2.8 / maxDim;
+      fbx.scale.set(scale, scale, scale);
+      fbx.position.sub(center.multiplyScalar(scale));
+      initialY = fbx.position.y;
+      fbx.position.y = initialY - 0.25;
+      //acerca de mi 0.25
+      //proyectos 0.55
+      //Experiencias 0.8
+      //Contacto 1.08
+      fbx.position.x += 0.5;
+      fbx.rotation.y = Math.PI;
+    }
+
+    const meshes = [];
+    fbx.traverse((child) => {
+      if (child.isMesh) meshes.push(child);
+    });
+
+    meshes.forEach((mesh) => {
+      mesh.material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      addOutline(mesh, 0.08);
+    });
+
+    scene.add(fbx);
+    loadedModel = fbx;
+
+    if (fbx.animations && fbx.animations.length > 0) {
+      mixer = new THREE.AnimationMixer(fbx);
+      animationClip = fbx.animations[0];
+      mainAction = mixer.clipAction(animationClip);
+      mainAction.loop = THREE.LoopOnce;
+      mainAction.clampWhenFinished = true;
+
+      mixer.addEventListener('finished', (e) => {
+        if (mainAction && mainAction.timeScale > 0) {
+          // Convierte a negro con borde blanco al final de la animación de avance
+          setModelColors(0xffffff, 0x000000);
+        }
+      });
+
+      if (pendingState !== null) {
+        trigger(pendingState);
+        pendingState = null;
+      }
+    }
+  }, undefined, (err) => console.error("Error al cargar FBX del sidebar:", err));
+
+  let pendingState = null;
+
+  function setModelColors(bodyColor, borderColor) {
+    if (!loadedModel) return;
+    loadedModel.traverse((child) => {
+      if (child.isMesh) {
+        if (child.parent && child.parent.isMesh) {
+          child.material.color.setHex(borderColor);
+        } else {
+          child.material.color.setHex(bodyColor);
+        }
+      }
+    });
+  }
+
+  function trigger(show) {
+    if (!mainAction) {
+      pendingState = show;
+      return;
+    }
+
+    // Regresa al invertido (blanco el modelo, negro el borde) con el reinicio
+    setModelColors(0xffffff, 0x000000);
+
+    if (show) {
+      container.style.opacity = '1';
+      mainAction.reset();
+      mainAction.timeScale = 1.5;
+      mainAction.time = 0;
+      mainAction.play();
+    } else {
+      container.style.opacity = '1';
+      mainAction.reset();
+      mainAction.timeScale = -1.5;
+      mainAction.time = animationClip.duration;
+      mainAction.play();
+    }
+  }
+
+  function updateY(sectionId) {
+    const offsets = {
+      'about': -0.25,
+      'projects': -0.55,
+      'experience': -0.8,
+      'contact': -1.08
+    };
+    if (offsets[sectionId] !== undefined) {
+      targetY = offsets[sectionId];
+    }
+  }
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const delta = clock.getDelta();
+    if (mixer) {
+      mixer.update(delta);
+      if (mainAction && mainAction.timeScale < 0 && mainAction.time <= 0.01) {
+        mainAction.paused = true;
+        mainAction.time = 0;
+        container.style.opacity = '0';
+      }
+    }
+    if (loadedModel) {
+      const targetPos = initialY + targetY;
+      loadedModel.position.y += (targetPos - loadedModel.position.y) * (1 - Math.exp(-8 * delta));
+    }
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', () => {
+    const w = container.clientWidth || 260;
+    const h = container.clientHeight || window.innerHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  });
+
+  return { trigger, updateY };
 }

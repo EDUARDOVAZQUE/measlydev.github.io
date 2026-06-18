@@ -2,183 +2,208 @@
 <html lang="es">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
-  <title>Eduardo Vázquez | Portafolio de Software y Robótica / IoT</title>
-  <meta name="description" content="Portafolio profesional de Eduardo Vázquez, desarrollador de software y especialista en IoT y robótica móvil." />
-  <meta name="theme-color" content="#0a0a0c"> 
-  
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-  <link rel="icon" type="image/jpg" href="img/measly543.jpg"> 
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Eduardo Vázquez | Portafolio de Software y Robótica / IoT</title>
+    <meta name="description"
+        content="Portafolio profesional de Eduardo Vázquez, desarrollador de software y especialista en IoT y robótica móvil." />
+    <meta name="theme-color" content="#0a0a0c">
+
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <link rel="icon" type="image/jpg" href="img/measly543.jpg">
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.179.1/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.179.1/examples/jsm/"
+            }
+        }
+    </script>
 </head>
 
 <body>
-  <header id="home-screen" class="home-screen">
-    <div id="hero-3d-canvas-container"></div>
-    <div id="stars"></div>
-    <div class="home-content">
-      <div class="home-profile-img animated-element" role="img" aria-label="Foto de perfil"></div>
-      <h1 class="home-username animated-element">Eduardo Vázquez</h1>
-      <p class="home-tagline animated-element">Desarrollador de Software & Especialista en Robótica / IoT</p>
+    <header id="home-screen" class="home-screen">
+        <div id="hero-3d-canvas-container"></div>
+        <div id="stars"></div>
+        <div class="home-content">
+            <div class="home-profile-img animated-element" role="img" aria-label="Foto de perfil"></div>
+            <h1 class="home-username animated-element">Eduardo Vázquez</h1>
+            <p class="home-tagline animated-element">Desarrollador de Software & Especialista en Robótica / IoT</p>
 
-      <nav class="home-nav" aria-label="Navegación principal">
-        <a href="#about" class="home-nav-button interactive-element animated-element">
-          <div class="icon-container"><i class="fa-solid fa-user icon"></i></div>
-          <span>Acerca de mí</span>
-        </a>
-        <a href="#projects" class="home-nav-button interactive-element animated-element">
-          <div class="icon-container"><i class="fa-solid fa-microchip icon"></i></div>
-          <span>Proyectos</span>
-        </a>
-        <a href="#experience" class="home-nav-button interactive-element animated-element">
-          <div class="icon-container"><i class="fa-solid fa-camera-retro icon"></i></div>
-          <span>Experiencias</span>
-        </a>
-        <a href="#contact" class="home-nav-button interactive-element animated-element">
-          <div class="icon-container"><i class="fa-solid fa-phone icon"></i></div>
-          <span>Contacto</span>
-        </a>
-      </nav>
+            <nav class="home-nav" aria-label="Navegación principal">
+                <a href="#about" class="home-nav-button interactive-element animated-element">
+                    <div class="icon-container"><i class="fa-solid fa-user icon"></i></div>
+                    <span>Acerca de mí</span>
+                </a>
+                <a href="#projects" class="home-nav-button interactive-element animated-element">
+                    <div class="icon-container"><i class="fa-solid fa-microchip icon"></i></div>
+                    <span>Proyectos</span>
+                </a>
+                <a href="#experience" class="home-nav-button interactive-element animated-element">
+                    <div class="icon-container"><i class="fa-solid fa-camera-retro icon"></i></div>
+                    <span>Experiencias</span>
+                </a>
+                <a href="#contact" class="home-nav-button interactive-element animated-element">
+                    <div class="icon-container"><i class="fa-solid fa-phone icon"></i></div>
+                    <span>Contacto</span>
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <div id="main-portfolio">
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menú">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+
+        <aside class="sidebar">
+            <div id="sidebar-3d-canvas-container"></div>
+            <div class="profile">
+                <a href="#home-screen" id="back-to-home" class="home-profile-img" title="Inicio"></a>
+                <h1 class="profile-name">Eduardo Vázquez</h1>
+            </div>
+            <nav class="navigation">
+                <ul>
+                    <li><a href="#about" class="nav-link interactive-element"><i
+                                class="fa-solid fa-user icon"></i><span>Acerca de mí</span></a></li>
+                    <li><a href="#projects" class="nav-link interactive-element"><i
+                                class="fa-solid fa-microchip icon"></i><span>Proyectos</span></a></li>
+                    <li><a href="#experience" class="nav-link interactive-element"><i
+                                class="fa-solid fa-camera-retro icon"></i><span>Experiencias</span></a></li>
+                    <li><a href="#contact" class="nav-link interactive-element"><i
+                                class="fa-solid fa-phone icon"></i><span>Contacto</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+
+            <section id="about" class="content-section">
+                <h2>Acerca de Mí</h2>
+                <div class="about-grid">
+                    <div class="about-text-content">
+                        <p class="about-bio">
+                            ¡Hola! Soy <strong>Eduardo Vázquez</strong>, estudiante de Ingeniería en Tecnologías de la
+                            Información y Comunicaciones (TIC) en el ITSOEH. Me especializo en el desarrollo de software
+                            y en la integración de soluciones de Robótica y el Internet de las Cosas (IoT).
+                        </p>
+                        <p class="about-bio">
+                            Mi enfoque consiste en conectar el mundo físico con el digital, diseñando sistemas embebidos
+                            eficientes y aplicaciones web robustas que resuelvan necesidades del mundo real.
+                        </p>
+
+                        <div class="skills-block">
+                            <h3>Habilidades Clave</h3>
+                            <div class="skills-grid">
+                                <span class="skill-badge">Desarrollo Web (HTML/CSS/JS)</span>
+                                <span class="skill-badge">Internet de las Cosas (IoT)</span>
+                                <span class="skill-badge">Robótica Móvil y de Competencia</span>
+                                <span class="skill-badge">Microcontroladores (Arduino, ESP32)</span>
+                                <span class="skill-badge">Sistemas Embebidos</span>
+                                <span class="skill-badge">Bases de Datos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-image-wrapper">
+                        <div class="image-container">
+                            <img src="img/acercademi.jpg" alt="Eduardo Vázquez - Desarrollador de Software"
+                                class="about-image" loading="eager">
+                            <div class="fade-top"></div>
+                            <div class="fade-bottom"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="projects" class="content-section">
+                <h2>Proyectos</h2>
+                <div class="filter-container">
+                    <label for="category-filter">Filtrar por categoría</label>
+                    <select id="category-filter" name="category-filter" class="interactive-element">
+                        <option value="all">Todas</option>
+                        <option value="robotica">Robótica</option>
+                        <option value="software">Software</option>
+                        <option value="iot">IoT</option>
+                    </select>
+                </div>
+
+                <div class="projects-carousel">
+                    <button class="carousel-control prev" id="projects-prev" aria-label="Proyecto anterior">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <div class="carousel-viewport">
+                        <div class="projects-grid" id="projects-container">
+                            <!-- Cargado dinámicamente desde portfolio.js -->
+                        </div>
+                    </div>
+                    <button class="carousel-control next" id="projects-next" aria-label="Siguiente proyecto">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="carousel-dots" id="projects-dots"></div>
+            </section>
+
+            <section id="experience" class="content-section centered-content">
+                <h2>Experiencias</h2>
+                <p>Aquí enlisto mi trayectoria y competencias.</p>
+
+                <div class="experience-tabs">
+                    <button class="experience-tab-btn active interactive-element" data-tab="laboral">Laboral &
+                        Institucional</button>
+                    <button class="experience-tab-btn interactive-element" data-tab="academica">Académica &
+                        Competencias</button>
+                </div>
+
+                <ul class="experience-list" id="experience-container">
+                    <!-- Cargado dinámicamente desde portfolio.js -->
+                </ul>
+
+                <div class="experience-pagination" id="experience-pagination-container">
+                    <button class="carousel-control prev" id="experience-prev" aria-label="Página anterior">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <div class="carousel-dots" id="experience-dots"></div>
+                    <button class="carousel-control next" id="experience-next" aria-label="Siguiente página">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="contact" class="content-section centered-content">
+                <h2>Contacto</h2>
+                <div class="contact-links">
+                    <a href="https://github.com/EDUARDOVAZQUE" target="_blank" class="interactive-element"><i
+                            class="fa-brands fa-github icon"></i> GitHub</a>
+                    <a href="mailto:22011935@itsoeh.edu.mx" class="interactive-element"><i
+                            class="fa-solid fa-envelope icon"></i> Email</a>
+                </div>
+            </section>
+        </main>
     </div>
-  </header>
 
-  <div id="main-portfolio">
-    <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Menú">
-      <i class="fa-solid fa-bars"></i>
-    </button>
+    <div id="lightbox" class="lightbox">
+        <button id="lightbox-close" class="lightbox-btn close">&times;</button>
+        <button id="lightbox-prev" class="lightbox-btn prev">&#10094;</button>
+        <button id="lightbox-next" class="lightbox-btn next">&#10095;</button>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="Vista ampliada">
+            <div id="lightbox-video" class="lightbox-video-container"></div>
 
-    <aside class="sidebar">
-      <div class="profile">
-        <a href="#home-screen" id="back-to-home" class="home-profile-img" title="Inicio"></a>
-        <h1 class="profile-name">Eduardo Vázquez</h1>
-      </div>
-      <nav class="navigation">
-        <ul>
-          <li><a href="#about" class="nav-link interactive-element"><i class="fa-solid fa-user icon"></i><span>Acerca de mí</span></a></li>
-          <li><a href="#projects" class="nav-link interactive-element"><i class="fa-solid fa-microchip icon"></i><span>Proyectos</span></a></li>
-          <li><a href="#experience" class="nav-link interactive-element"><i class="fa-solid fa-camera-retro icon"></i><span>Experiencias</span></a></li>
-          <li><a href="#contact" class="nav-link interactive-element"><i class="fa-solid fa-phone icon"></i><span>Contacto</span></a></li>
-        </ul>
-      </nav>
-    </aside>
-
-    <main class="main-content">
-      
-      <section id="about" class="content-section">
-        <h2>Acerca de Mí</h2>
-        <div class="about-grid">
-          <div class="about-text-content">
-            <p class="about-bio">
-              ¡Hola! Soy <strong>Eduardo Vázquez</strong>, estudiante de Ingeniería en Tecnologías de la Información y Comunicaciones (TIC) en el ITSOEH. Me especializo en el desarrollo de software y en la integración de soluciones de Robótica y el Internet de las Cosas (IoT).
-            </p>
-            <p class="about-bio">
-              Mi enfoque consiste en conectar el mundo físico con el digital, diseñando sistemas embebidos eficientes y aplicaciones web robustas que resuelvan necesidades del mundo real.
-            </p>
-            
-            <div class="skills-block">
-              <h3>Habilidades Clave</h3>
-              <div class="skills-grid">
-                <span class="skill-badge">Desarrollo Web (HTML/CSS/JS)</span>
-                <span class="skill-badge">Internet de las Cosas (IoT)</span>
-                <span class="skill-badge">Robótica Móvil y de Competencia</span>
-                <span class="skill-badge">Microcontroladores (Arduino, ESP32)</span>
-                <span class="skill-badge">Sistemas Embebidos</span>
-                <span class="skill-badge">Bases de Datos</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="about-image-wrapper">
-            <div class="image-container">
-              <img src="img/acercademi.jpg" alt="Eduardo Vázquez - Desarrollador de Software" class="about-image" loading="eager"> 
-              <div class="fade-top"></div>
-              <div class="fade-bottom"></div>
-            </div>
-          </div>
+            <p id="lightbox-caption"></p>
         </div>
-      </section>
-
-      <section id="projects" class="content-section">
-        <h2>Proyectos</h2>
-        <div class="filter-container">
-          <label for="category-filter">Filtrar por categoría</label>
-          <select id="category-filter" name="category-filter" class="interactive-element">
-            <option value="all">Todas</option>
-            <option value="robotica">Robótica</option>
-            <option value="software">Software</option>
-            <option value="iot">IoT</option>
-          </select>
-        </div>
-        
-        <div class="projects-carousel">
-          <button class="carousel-control prev" id="projects-prev" aria-label="Proyecto anterior">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-          <div class="carousel-viewport">
-            <div class="projects-grid" id="projects-container">
-              <!-- Cargado dinámicamente desde portfolio.js -->
-            </div>
-          </div>
-          <button class="carousel-control next" id="projects-next" aria-label="Siguiente proyecto">
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-        </div>
-        <div class="carousel-dots" id="projects-dots"></div>
-      </section>
-
-      <section id="experience" class="content-section centered-content">
-        <h2>Experiencias</h2>
-        <p>Aquí enlisto mi trayectoria y competencias.</p>
-        
-        <div class="experience-tabs">
-          <button class="experience-tab-btn active interactive-element" data-tab="laboral">Laboral & Institucional</button>
-          <button class="experience-tab-btn interactive-element" data-tab="academica">Académica & Competencias</button>
-        </div>
-        
-        <ul class="experience-list" id="experience-container">
-          <!-- Cargado dinámicamente desde portfolio.js -->
-        </ul>
-
-        <div class="experience-pagination" id="experience-pagination-container">
-          <button class="carousel-control prev" id="experience-prev" aria-label="Página anterior">
-            <i class="fa-solid fa-chevron-left"></i>
-          </button>
-          <div class="carousel-dots" id="experience-dots"></div>
-          <button class="carousel-control next" id="experience-next" aria-label="Siguiente página">
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-        </div>
-      </section>
-
-      <section id="contact" class="content-section centered-content">
-        <h2>Contacto</h2>
-        <div class="contact-links">
-          <a href="https://github.com/EDUARDOVAZQUE" target="_blank" class="interactive-element"><i class="fa-brands fa-github icon"></i> GitHub</a>
-          <a href="mailto:22011935@itsoeh.edu.mx" class="interactive-element"><i class="fa-solid fa-envelope icon"></i> Email</a>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <div id="lightbox" class="lightbox">
-    <button id="lightbox-close" class="lightbox-btn close">&times;</button>
-    <button id="lightbox-prev" class="lightbox-btn prev">&#10094;</button>
-    <button id="lightbox-next" class="lightbox-btn next">&#10095;</button>
-    <div class="lightbox-content">
-      <img id="lightbox-img" src="" alt="Vista ampliada">
-      <div id="lightbox-video" class="lightbox-video-container"></div>
-      
-      <p id="lightbox-caption"></p>
     </div>
-  </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-  <script src="portfolio.js" defer></script>  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="portfolio.js" type="module" defer></script>
 </body>
+
 </html>
