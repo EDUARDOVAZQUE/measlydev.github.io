@@ -4,8 +4,15 @@
  * Reemplaza al script.js legacy de forma estructurada, responsive y libre de bugs.
  */
 
-import * as THREE from 'three';
-import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
+let THREE = null;
+let GLTFLoader = null;
+
+async function loadThree() {
+  if (THREE && GLTFLoader) return;
+  THREE = await import('three');
+  const loaderMod = await import('three/addons/loaders/GLTFLoader.js');
+  GLTFLoader = loaderMod.GLTFLoader;
+}
 
 // --- AUDIO GLOBAL ---
 const globalSelectSound = new Audio('select.wav');
@@ -48,6 +55,13 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cargar datos dinámicos
   loadProjects();
   loadExperience();
+
+  // Registro del Service Worker para optimizar tiempos de caché en móvil
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.min.js')
+      .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+      .catch(err => console.error('Error al registrar Service Worker:', err));
+  }
 });
 
 // --- HELPER PARA YOUTUBE ID ---
@@ -287,10 +301,17 @@ function renderProjectsCarousel() {
     // Obtener imagen de fondo predeterminada o la del proyecto
     let imgUrl = proj.image || "";
     if (!imgUrl) {
-      if (proj.category && proj.category.toLowerCase() === 'robotica') {
-        imgUrl = "img/robotica-icon.png";
+      const cat = proj.category ? proj.category.toLowerCase() : "";
+      if (cat === 'robotica') {
+        imgUrl = "icons/robotica-icon.avif";
+      } else if (cat === 'software') {
+        imgUrl = "icons/software-icon.avif";
       } else {
-        imgUrl = "img/iot-icon.png";
+        imgUrl = "icons/iot-icon.avif";
+      }
+    } else {
+      if (imgUrl.startsWith("img/") && !imgUrl.endsWith(".avif") && !imgUrl.includes("measly543") && !imgUrl.includes("Reconocimiento-XVI")) {
+        imgUrl = imgUrl.replace(/\.(jpg|jpeg|png)$/i, ".avif");
       }
     }
 
@@ -456,12 +477,23 @@ function openProjectDetailsModal(proj) {
     lbVideoContainer.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
   } else if (proj.image) {
     lbImg.style.display = "block";
-    lbImg.src = proj.image;
+    let srcUrl = proj.image;
+    if (srcUrl.startsWith("img/") && !srcUrl.endsWith(".avif") && !srcUrl.includes("measly543") && !srcUrl.includes("Reconocimiento-XVI")) {
+      srcUrl = srcUrl.replace(/\.(jpg|jpeg|png)$/i, ".avif");
+    }
+    lbImg.src = srcUrl;
     lbImg.alt = proj.title;
   } else {
     // Si no tiene imagen, mostrar el ícono de la categoría como placeholder
     lbImg.style.display = "block";
-    lbImg.src = proj.category && proj.category.toLowerCase() === 'robotica' ? "img/robotica-icon.png" : "img/iot-icon.png";
+    const cat = proj.category ? proj.category.toLowerCase() : "";
+    if (cat === 'robotica') {
+      lbImg.src = "icons/robotica-icon.avif";
+    } else if (cat === 'software') {
+      lbImg.src = "icons/software-icon.avif";
+    } else {
+      lbImg.src = "icons/iot-icon.avif";
+    }
     lbImg.alt = proj.title;
   }
 
@@ -602,7 +634,11 @@ function renderExperiences() {
 
       // Añadir imágenes
       imgUrls.forEach(img => {
-        galleryHTML += `<img src="${img.url}" alt="${img.alt}" loading="lazy" class="gallery-item" data-type="image">`;
+        let srcUrl = img.url;
+        if (srcUrl.startsWith("img/") && !srcUrl.endsWith(".avif") && !srcUrl.includes("measly543") && !srcUrl.includes("Reconocimiento-XVI")) {
+          srcUrl = srcUrl.replace(/\.(jpg|jpeg|png)$/i, ".avif");
+        }
+        galleryHTML += `<img src="${srcUrl}" alt="${img.alt}" loading="lazy" class="gallery-item" data-type="image" width="300" height="200">`;
       });
 
       // Añadir videos (miniaturas de youtube)
@@ -611,7 +647,7 @@ function renderExperiences() {
         if (ytId) {
           galleryHTML += `
             <div class="video-thumbnail-wrapper gallery-item" data-type="video" data-video-id="${ytId}">
-              <img src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" alt="Video: ${exp.title}" loading="lazy">
+              <img src="https://img.youtube.com/vi/${ytId}/hqdefault.jpg" alt="Video: ${exp.title}" loading="lazy" width="120" height="90">
             </div>
           `;
         }
@@ -623,7 +659,7 @@ function renderExperiences() {
     item.innerHTML = `
       <button class="experience-toggle" aria-expanded="false">
         <div class="experience-header-text">
-          <h4>${exp.title}</h4>
+          <h3>${exp.title}</h3>
           <span>${exp.date || ''}</span>
         </div>
         <i class="fa-solid fa-chevron-down toggle-icon"></i>
@@ -874,111 +910,151 @@ function initSidebar3D() {
   const container = document.getElementById('sidebar-3d-canvas-container');
   if (!container) return null;
 
-  const scene = new THREE.Scene();
-
-  const width = container.clientWidth || 260;
-  const height = container.clientHeight || window.innerHeight;
-
-  const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
-  camera.position.set(0, 0.5, 3.2);
-  camera.lookAt(0, 0.2, 0);
-
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(width, height);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  container.appendChild(renderer.domElement);
+  let isInitialized = false;
+  let initPromise = null;
 
   let mixer = null;
   let mainAction = null;
   let animationClip = null;
-  const clock = new THREE.Clock();
+  let clock = null;
   let loadedModel = null;
   let initialY = 0;
   let targetY = -0.25;
+  let renderer = null;
+  let camera = null;
+  let scene = null;
+  let pendingState = null;
 
-  function addOutline(child, thickness = 0.02) {
-    const outlineMaterial = new THREE.MeshBasicMaterial({
-      color: 0x000000,
-      side: THREE.BackSide
-    });
+  async function ensureInitialized() {
+    if (initPromise) return initPromise;
+    initPromise = (async () => {
+      // Cargar módulos Three.js dinámicamente al desplazarse fuera de home
+      await loadThree();
 
-    outlineMaterial.onBeforeCompile = (shader) => {
-      shader.uniforms.thickness = { value: thickness };
-      shader.vertexShader = 'uniform float thickness;\n' + shader.vertexShader;
-      shader.vertexShader = shader.vertexShader.replace(
-        '#include <begin_vertex>',
-        `#include <begin_vertex>\ntransformed += normal * thickness;`
-      );
-    };
+      scene = new THREE.Scene();
+      const width = container.clientWidth || 260;
+      const height = container.clientHeight || window.innerHeight;
 
-    let outline;
-    if (child.isSkinnedMesh) {
-      outline = new THREE.SkinnedMesh(child.geometry, outlineMaterial);
-      outline.skeleton = child.skeleton;
-      outline.bindMatrix = child.bindMatrix;
-      outline.bindMatrixInverse = child.bindMatrixInverse;
-    } else {
-      outline = new THREE.Mesh(child.geometry, outlineMaterial);
-    }
-    child.add(outline);
-  }
+      camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+      camera.position.set(0, 0.5, 3.2);
+      camera.lookAt(0, 0.2, 0);
 
-  const loader = new FBXLoader();
-  loader.load('model.fbx', (fbx) => {
-    const box = new THREE.Box3().setFromObject(fbx);
-    const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
 
-    if (maxDim > 0) {
-      const scale = 2.8 / maxDim;
-      fbx.scale.set(scale, scale, scale);
-      fbx.position.sub(center.multiplyScalar(scale));
-      initialY = fbx.position.y;
-      fbx.position.y = initialY - 0.25;
-      //acerca de mi 0.25
-      //proyectos 0.55
-      //Experiencias 0.8
-      //Contacto 1.08
-      fbx.position.x += 0.5;
-      fbx.rotation.y = Math.PI;
-    }
+      clock = new THREE.Clock();
 
-    const meshes = [];
-    fbx.traverse((child) => {
-      if (child.isMesh) meshes.push(child);
-    });
+      function addOutline(child, thickness = 0.02) {
+        const outlineMaterial = new THREE.MeshBasicMaterial({
+          color: 0x000000,
+          side: THREE.BackSide
+        });
 
-    meshes.forEach((mesh) => {
-      mesh.material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-      addOutline(mesh, 0.08);
-    });
+        outlineMaterial.onBeforeCompile = (shader) => {
+          shader.uniforms.thickness = { value: thickness };
+          shader.vertexShader = 'uniform float thickness;\n' + shader.vertexShader;
+          shader.vertexShader = shader.vertexShader.replace(
+            '#include <begin_vertex>',
+            `#include <begin_vertex>\ntransformed += normal * thickness;`
+          );
+        };
 
-    scene.add(fbx);
-    loadedModel = fbx;
-
-    if (fbx.animations && fbx.animations.length > 0) {
-      mixer = new THREE.AnimationMixer(fbx);
-      animationClip = fbx.animations[0];
-      mainAction = mixer.clipAction(animationClip);
-      mainAction.loop = THREE.LoopOnce;
-      mainAction.clampWhenFinished = true;
-
-      mixer.addEventListener('finished', (e) => {
-        if (mainAction && mainAction.timeScale > 0) {
-          // Convierte a negro con borde blanco al final de la animación de avance
-          setModelColors(0xffffff, 0x000000);
+        let outline;
+        if (child.isSkinnedMesh) {
+          outline = new THREE.SkinnedMesh(child.geometry, outlineMaterial);
+          outline.skeleton = child.skeleton;
+          outline.bindMatrix = child.bindMatrix;
+          outline.bindMatrixInverse = child.bindMatrixInverse;
+        } else {
+          outline = new THREE.Mesh(child.geometry, outlineMaterial);
         }
+        child.add(outline);
+      }
+
+      const loader = new GLTFLoader();
+      loader.load('model-v1.glb', (gltf) => {
+        const model = gltf.scene;
+        const box = new THREE.Box3().setFromObject(model);
+        const size = box.getSize(new THREE.Vector3());
+        const center = box.getCenter(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
+
+        if (maxDim > 0) {
+          const scale = 2.8 / maxDim;
+          model.scale.set(scale, scale, scale);
+          model.position.sub(center.multiplyScalar(scale));
+          initialY = model.position.y;
+          model.position.y = initialY - 0.25;
+          model.position.x += 0.5;
+          model.rotation.y = Math.PI;
+        }
+
+        const meshes = [];
+        model.traverse((child) => {
+          if (child.isMesh) meshes.push(child);
+        });
+
+        meshes.forEach((mesh) => {
+          mesh.material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+          addOutline(mesh, 0.08);
+        });
+
+        scene.add(model);
+        loadedModel = model;
+
+        if (gltf.animations && gltf.animations.length > 0) {
+          mixer = new THREE.AnimationMixer(model);
+          animationClip = gltf.animations[0];
+          mainAction = mixer.clipAction(animationClip);
+          mainAction.loop = THREE.LoopOnce;
+          mainAction.clampWhenFinished = true;
+
+          mixer.addEventListener('finished', (e) => {
+            if (mainAction && mainAction.timeScale > 0) {
+              setModelColors(0xffffff, 0x000000);
+            }
+          });
+
+          if (pendingState !== null) {
+            trigger(pendingState);
+            pendingState = null;
+          }
+        }
+      }, undefined, (err) => console.error("Error al cargar GLB del sidebar:", err));
+
+      function animate() {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+        if (mixer) {
+          mixer.update(delta);
+          if (mainAction && mainAction.timeScale < 0 && mainAction.time <= 0.01) {
+            mainAction.paused = true;
+            mainAction.time = 0;
+            container.style.opacity = '0';
+          }
+        }
+        if (loadedModel) {
+          const targetPos = initialY + targetY;
+          loadedModel.position.y += (targetPos - loadedModel.position.y) * (1 - Math.exp(-8 * delta));
+        }
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener('resize', () => {
+        const w = container.clientWidth || 260;
+        const h = container.clientHeight || window.innerHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
       });
 
-      if (pendingState !== null) {
-        trigger(pendingState);
-        pendingState = null;
-      }
-    }
-  }, undefined, (err) => console.error("Error al cargar FBX del sidebar:", err));
-
-  let pendingState = null;
+      isInitialized = true;
+    })();
+    return initPromise;
+  }
 
   function setModelColors(bodyColor, borderColor) {
     if (!loadedModel) return;
@@ -994,27 +1070,28 @@ function initSidebar3D() {
   }
 
   function trigger(show) {
-    if (!mainAction) {
-      pendingState = show;
-      return;
-    }
+    ensureInitialized().then(() => {
+      if (!mainAction) {
+        pendingState = show;
+        return;
+      }
 
-    // Regresa al invertido (blanco el modelo, negro el borde) con el reinicio
-    setModelColors(0xffffff, 0x000000);
+      setModelColors(0xffffff, 0x000000);
 
-    if (show) {
-      container.style.opacity = '1';
-      mainAction.reset();
-      mainAction.timeScale = 1.5;
-      mainAction.time = 0;
-      mainAction.play();
-    } else {
-      container.style.opacity = '1';
-      mainAction.reset();
-      mainAction.timeScale = -1.5;
-      mainAction.time = animationClip.duration;
-      mainAction.play();
-    }
+      if (show) {
+        container.style.opacity = '1';
+        mainAction.reset();
+        mainAction.timeScale = 1.5;
+        mainAction.time = 0;
+        mainAction.play();
+      } else {
+        container.style.opacity = '1';
+        mainAction.reset();
+        mainAction.timeScale = -1.5;
+        mainAction.time = animationClip.duration;
+        mainAction.play();
+      }
+    });
   }
 
   function updateY(sectionId) {
@@ -1028,33 +1105,6 @@ function initSidebar3D() {
       targetY = offsets[sectionId];
     }
   }
-
-  function animate() {
-    requestAnimationFrame(animate);
-    const delta = clock.getDelta();
-    if (mixer) {
-      mixer.update(delta);
-      if (mainAction && mainAction.timeScale < 0 && mainAction.time <= 0.01) {
-        mainAction.paused = true;
-        mainAction.time = 0;
-        container.style.opacity = '0';
-      }
-    }
-    if (loadedModel) {
-      const targetPos = initialY + targetY;
-      loadedModel.position.y += (targetPos - loadedModel.position.y) * (1 - Math.exp(-8 * delta));
-    }
-    renderer.render(scene, camera);
-  }
-  animate();
-
-  window.addEventListener('resize', () => {
-    const w = container.clientWidth || 260;
-    const h = container.clientHeight || window.innerHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-  });
 
   return { trigger, updateY };
 }

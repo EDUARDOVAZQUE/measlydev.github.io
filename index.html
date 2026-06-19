@@ -13,10 +13,226 @@
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Preloads para optimizar la carga inicial crítica -->
+    <link rel="preload" href="img/measly543.jpg" as="image" fetchpriority="high">
+    <link rel="modulepreload" href="portfolio.min.js">
+
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css" />
+    
+    <!-- CSS Crítico en línea para renderizado inmediato en móviles -->
+    <style>
+        :root {
+            --bg-color-top: #08080a;
+            --bg-color-bottom: #110e14;
+            --panel-bg: rgba(20, 20, 25, 0.65);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --interactive-bg: rgba(255, 255, 255, 0.06);
+            --interactive-hover: rgba(255, 51, 68, 0.15);
+            --accent-color: #ff3344;
+            --accent-gradient: linear-gradient(135deg, #ff3344, #e60026);
+            --primary-text: #ffffff;
+            --secondary-text: #b0afb8;
+            --sidebar-width: 260px;
+            --font-primary: 'Inter', 'Inter Fallback', sans-serif;
+            --font-display: 'Space Grotesk', 'Space Grotesk Fallback', sans-serif;
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --transition-spring: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @font-face {
+            font-family: 'Inter Fallback';
+            src: local('Arial');
+            ascent-override: 90%;
+            descent-override: 22%;
+            line-gap-override: 0%;
+            size-adjust: 107%;
+        }
+
+        @font-face {
+            font-family: 'Space Grotesk Fallback';
+            src: local('Arial');
+            ascent-override: 95%;
+            descent-override: 25%;
+            line-gap-override: 0%;
+            size-adjust: 100%;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background: linear-gradient(180deg, var(--bg-color-top), var(--bg-color-bottom));
+            background-attachment: fixed;
+            color: var(--primary-text);
+            overflow-x: hidden;
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeInSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .animated-element {
+            animation: fadeInSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        .home-screen {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #hero-3d-canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        #stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .home-content {
+            max-width: 900px;
+            z-index: 10;
+        }
+
+        .home-profile-img {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            border: 1px solid var(--panel-border);
+            transition: var(--transition-smooth);
+        }
+
+        img.home-profile-img {
+            object-fit: cover;
+        }
+
+        div.home-profile-img {
+            background-image: url(img/measly543.jpg);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .home-profile-img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .home-username {
+            font-family: var(--font-display);
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .home-tagline {
+            font-size: 1.25rem;
+            color: var(--secondary-text);
+            margin-bottom: 3rem;
+            font-weight: 300;
+        }
+
+        .home-nav {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .home-nav-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--secondary-text);
+            transition: var(--transition-smooth);
+        }
+
+        .home-nav-button .icon-container {
+            width: 80px;
+            height: 80px;
+            background: var(--panel-bg);
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 2rem;
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: var(--transition-smooth);
+            color: var(--secondary-text);
+        }
+
+        .home-nav-button:hover {
+            color: var(--primary-text);
+            transform: translateY(-6px);
+        }
+
+        .home-nav-button:hover .icon-container {
+            border-color: var(--accent-color);
+            box-shadow: 0 5px 15px rgba(255, 51, 68, 0.25);
+            color: var(--primary-text);
+            background: rgba(255, 51, 68, 0.05);
+        }
+    </style>
+
+    <!-- Carga diferida / asíncrona de estilos no críticos -->
+    <link rel="stylesheet" href="style.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="style.css"></noscript>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <link rel="icon" type="image/jpg" href="img/measly543.jpg">
     <script type="importmap">
@@ -34,7 +250,7 @@
         <div id="hero-3d-canvas-container"></div>
         <div id="stars"></div>
         <div class="home-content">
-            <div class="home-profile-img animated-element" role="img" aria-label="Foto de perfil"></div>
+            <img src="img/measly543.jpg" alt="Foto de perfil" class="home-profile-img animated-element" width="140" height="140" fetchpriority="high">
             <h1 class="home-username animated-element">Eduardo Vázquez</h1>
             <p class="home-tagline animated-element">Desarrollador de Software & Especialista en Robótica / IoT</p>
 
@@ -115,8 +331,8 @@
 
                     <div class="about-image-wrapper">
                         <div class="image-container">
-                            <img src="img/acercademi.jpg" alt="Eduardo Vázquez - Desarrollador de Software"
-                                class="about-image" loading="eager">
+                            <img src="img/acercademi.avif" alt="Eduardo Vázquez - Desarrollador de Software"
+                                class="about-image" loading="eager" width="600" height="480">
                             <div class="fade-top"></div>
                             <div class="fade-bottom"></div>
                         </div>
@@ -203,7 +419,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-    <script src="portfolio.js" type="module" defer></script>
+    <script src="portfolio.min.js" type="module" defer></script>
 </body>
 
 </html>

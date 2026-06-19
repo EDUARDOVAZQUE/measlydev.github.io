@@ -106,132 +106,7 @@ body {
   opacity: 0;
 }
 
-/* --- HERO SCREEN (INICIO) --- */
-.home-screen {
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  padding: 2rem;
-  position: relative;
-  overflow: hidden;
-}
 
-#hero-3d-canvas-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-#stars {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  overflow: hidden;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.home-content {
-  max-width: 900px;
-  z-index: 10;
-}
-
-.home-profile-img {
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  margin: 0 auto 1.5rem;
-  border: 1px solid var(--panel-border);
-  background-image: url(img/measly543.jpg);
-  background-size: cover;
-  background-position: center;
-  transition: var(--transition-smooth);
-}
-
-.home-profile-img:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.home-subtitle {
-  font-family: var(--font-display);
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.2rem;
-  color: var(--accent-color);
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.home-username {
-  font-family: var(--font-display);
-  font-size: 3.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.02em;
-}
-
-.home-tagline {
-  font-size: 1.25rem;
-  color: var(--secondary-text);
-  margin-bottom: 3rem;
-  font-weight: 300;
-}
-
-.home-nav {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.home-nav-button {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-decoration: none;
-  color: var(--secondary-text);
-  transition: var(--transition-smooth);
-}
-
-.home-nav-button .icon-container {
-  width: 80px;
-  height: 80px;
-  background: var(--panel-bg);
-  border-radius: 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 0.75rem;
-  font-size: 2rem;
-  border: 1px solid var(--panel-border);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: var(--transition-smooth);
-  color: var(--secondary-text);
-}
-
-.home-nav-button:hover {
-  color: var(--primary-text);
-  transform: translateY(-6px);
-}
-
-.home-nav-button:hover .icon-container {
-  border-color: var(--accent-color);
-  box-shadow: 0 5px 15px rgba(255, 51, 68, 0.25);
-  color: var(--primary-text);
-  background: rgba(255, 51, 68, 0.05);
-}
 
 /* --- PORTFOLIO CONTAINER & SIDEBAR --- */
 #main-portfolio {
@@ -326,6 +201,7 @@ body {
 .navigation li a {
   display: flex;
   align-items: center;
+  min-height: 48px;
   padding: 0.8rem 1rem;
   margin: 0.4rem 0;
   color: var(--secondary-text);
@@ -709,6 +585,7 @@ body {
 }
 
 .carousel-dot {
+  position: relative;
   background: rgba(255, 255, 255, 0.15);
   border: none;
   width: 8px;
@@ -716,6 +593,16 @@ body {
   border-radius: 50%;
   cursor: pointer;
   transition: var(--transition-smooth);
+}
+
+.carousel-dot::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 48px;
+  height: 48px;
+  transform: translate(-50%, -50%);
 }
 
 .carousel-dot.active {
@@ -760,6 +647,10 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition-smooth);
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .experience-tab-btn.active {
@@ -809,7 +700,7 @@ body {
   border-color: rgba(255, 51, 68, 0.3);
 }
 
-.experience-header-text h4 {
+.experience-header-text h3 {
   font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 600;
@@ -955,8 +846,8 @@ body {
   color: var(--primary-text);
   border: 1px solid var(--panel-border);
   border-radius: 12px;
-  width: 45px;
-  height: 45px;
+  width: 48px;
+  height: 48px;
   align-items: center;
   justify-content: center;
   font-size: 1.25rem;
@@ -1308,8 +1199,8 @@ body {
   }
 
   .carousel-control {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     font-size: 1rem;
   }
 
@@ -1326,8 +1217,8 @@ body {
   }
 
   .lightbox-btn {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     font-size: 1rem;
   }
 
