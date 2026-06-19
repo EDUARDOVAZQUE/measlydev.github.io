@@ -24,6 +24,7 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: var(--bg-color-bottom); /* Evita franjas claras durante el overscroll rebote */
 }
 
 /* --- SCROLLBAR --- */
